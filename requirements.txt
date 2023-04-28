@@ -1,5 +1,5 @@
 Flask
 Gunicorn
 langchain
-
+google-api-wrapper
 python-dotenv
