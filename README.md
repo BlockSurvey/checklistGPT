@@ -1,6 +1,8 @@
 Build Command	pip install -r requirements.txt
 Start Command	gunicorn app:app -w 1 --threads 12
 
+pip freeze > requirements.txt
+
 # README
 
 This is the [Flask](http://flask.pocoo.org/) [quick start](http://flask.pocoo.org/docs/1.0/quickstart/#a-minimal-application) example for [Render](https://render.com).
