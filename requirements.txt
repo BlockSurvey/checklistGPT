@@ -1,2 +1,5 @@
 Flask
 Gunicorn
+langchain
+
+python-dotenv
