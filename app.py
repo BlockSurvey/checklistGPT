@@ -1,4 +1,4 @@
-from flask import Flask, Response, jsonify, request
+from flask import Flask, jsonify, request
 
 import config
 from controllers.checklist_controller import ChecklistController
