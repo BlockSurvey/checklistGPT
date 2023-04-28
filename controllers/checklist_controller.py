@@ -1,7 +1,6 @@
 import json
 import re
 
-from langchain import GoogleSearchAPIWrapper
 from langchain.agents import AgentType, Tool, initialize_agent, load_tools
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI

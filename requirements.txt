@@ -1,5 +1,5 @@
 Flask
 Gunicorn
-langchain
 google-api-python-client
+langchain
 python-dotenv

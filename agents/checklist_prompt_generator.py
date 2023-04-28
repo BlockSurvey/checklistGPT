@@ -2,7 +2,6 @@ import re
 from gc import callbacks
 from typing import Any, Dict, List, Optional, Union
 
-from langchain import ConversationChain, GoogleSearchAPIWrapper
 from langchain.agents import (AgentExecutor, AgentOutputParser, AgentType,
                               LLMSingleActionAgent, Tool, initialize_agent,
                               load_tools)
@@ -15,6 +14,7 @@ from langchain.memory import (ConversationBufferMemory,
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.prompts import PromptTemplate, StringPromptTemplate
 from langchain.schema import AgentAction, AgentFinish, LLMResult
+from langchain.utilities import GoogleSearchAPIWrapper
 
 from utils.langchain.custom_output_parser import CustomOutputParser
 from utils.langchain.custom_prompt_template import CustomPromptTemplate
@@ -43,6 +43,8 @@ class ChecklistPromptGenerator():
         )
         relevant_chain = LLMChain(llm=llm, prompt=relevant_prompt)
 
+        google_search = GoogleSearchAPIWrapper()
+
         tools = [
             Tool(
                 name="PromptGenerator",
@@ -51,7 +53,7 @@ class ChecklistPromptGenerator():
             ),
             Tool(
                 name="Search",
-                func=GoogleSearchAPIWrapper().run,
+                func=google_search.run,
                 description="useful for when you need to answer questions about current events or status. Even if the answer is not found in Search tool, you could use this tool to find the answer.",
             ),
             Tool(
