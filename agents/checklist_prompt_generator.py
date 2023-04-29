@@ -15,7 +15,7 @@ class ChecklistPromptGenerator():
     def __init__(self, checklist_agent_id: str):
         self.checklist_agent_id = checklist_agent_id
 
-    def generate_prompt(self):
+    def generate_prompt(self, checklist_name, checklist_project, checklist_organization):
         # gpt-3.5-turbo / gpt-4
         llm = ChatOpenAI(
             temperature=0.5, model_name="gpt-3.5-turbo")
@@ -97,12 +97,11 @@ class ChecklistPromptGenerator():
             - Ask yourself relevant questions and improve the quality of the checklist creation prompt. 
             - We will go through this process repeatedly three times to arrive at a final prompt
 
-            checklist_name: on-page SEO checklist
-            industry: software
-            team or project: SEO
-        """
+            checklist_name: {checklist_name}
+            industry: {checklist_organization}
+            team or project: {checklist_project}
+        """.format(checklist_name=checklist_name, checklist_organization=checklist_organization, checklist_project=checklist_project)
+
+        print(guidelines)
         output = agent_executor.run(guidelines)
         return output
-
-
-# generatePrompt(1)
