@@ -11,12 +11,13 @@ from agents.checklist_generator import ChecklistGenerator
 class ChecklistController():
     checklist_agent_id: str
     checklist_prompt_generator: ChecklistPromptGenerator
-    checklist_generator = ChecklistGenerator()
+    checklist_generator: ChecklistGenerator
 
     def __init__(self, checklist_agent_id: str):
         self.checklist_agent_id = checklist_agent_id
         self.checklist_prompt_generator = ChecklistPromptGenerator(
             self.checklist_agent_id)
+        self.checklist_generator = ChecklistGenerator(self.checklist_agent_id)
 
     def generate_checklist_prompt(self, checklist_name, checklist_project, checklist_organization):
         # Null validation
@@ -39,7 +40,6 @@ class ChecklistController():
         generated_checklist = self.checklist_generator.generate_checklist(
             checklist_prompt)
 
-        # generated_checklist = "```json{\"key\":\"value\"}```"
         pattern = r'```json(.*?)```'
         match = re.search(pattern, generated_checklist, re.DOTALL)
         if match:
@@ -48,5 +48,4 @@ class ChecklistController():
         else:
             print("No match found")
 
-        print(generated_checklist)
         return generated_checklist
