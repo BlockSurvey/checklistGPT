@@ -49,8 +49,6 @@ class CustomPromptTemplate(StringPromptTemplate):
         else:
             userId = g.jwt_session.get('sub')
 
-        print(userId)
-
         if matches:
             thought, action, action_input, observation = matches[-1]
             agent_result = {

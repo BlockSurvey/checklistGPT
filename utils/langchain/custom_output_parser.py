@@ -48,8 +48,6 @@ class CustomOutputParser(AgentOutputParser):
         else:
             userId = g.jwt_session.get('sub')
 
-        print(userId)
-
         hasura_service = HasuraService()
         agent_result = {
             "agent_id": self.checklist_agent_id,

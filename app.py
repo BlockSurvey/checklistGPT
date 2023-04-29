@@ -34,12 +34,14 @@ def token_required():
         return jsonify({'message': 'Invalid token!'}), 401
 
 
-@app.route('/generate-checklist-prompt')
+@app.route('/generate-checklist-prompt', methods=['POST'])
 def generate_checklist_prompt_api():
-    checklist_agent_id = request.args.get('id', None)
-    checklist_name = request.args.get('name', None)
-    checklist_project = request.args.get('project', None)
-    checklist_organization = request.args.get('organization', None)
+    payload = request.get_json()
+    checklist_agent_id = payload["id"] or None
+    checklist_name = payload["name"] or None
+    checklist_project = payload["project"] or None
+    checklist_organization = payload["organization"] or None
+
     checklist = ChecklistController(checklist_agent_id)
     result = checklist.generate_checklist_prompt(
         checklist_name, checklist_project, checklist_organization)
