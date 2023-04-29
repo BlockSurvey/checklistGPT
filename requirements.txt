@@ -4,3 +4,5 @@ langchain
 google-api-python-client
 openai
 python-dotenv
+requests
+pyjwt

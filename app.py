@@ -1,9 +1,37 @@
-from flask import Flask, jsonify, request
+import json
+import jwt
+from flask import Flask, g, jsonify, request
 
 import config
+from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
 
 app = Flask(__name__)
+
+
+@app.before_request
+def token_required():
+    # Exclude some routes from token verification, for example the login route
+    # if request.path == '/login':
+    #     return None
+
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header:
+        return jsonify({'message': 'Token is missing!'}), 401
+
+    jwtSecretObject = json.loads(JWT_SECRET)
+
+    try:
+        token = auth_header.split(' ')[1]
+        payload = jwt.decode(
+            token, jwtSecretObject['key'], algorithms=['HS256'])
+        # Store the decoded payload in the 'g' object
+        g.jwt_session = payload
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired!'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token!'}), 401
 
 
 @app.route('/generate-checklist-prompt')

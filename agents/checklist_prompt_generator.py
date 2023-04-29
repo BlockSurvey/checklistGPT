@@ -80,7 +80,8 @@ class ChecklistPromptGenerator():
             checklist_agent_id=self.checklist_agent_id
         )
         llm_chain = LLMChain(llm=llm, prompt=prompt)
-        output_parser = CustomOutputParser()
+        output_parser = CustomOutputParser(
+            checklist_agent_id=self.checklist_agent_id)
         tool_names = [tool.name for tool in tools]
         agent = LLMSingleActionAgent(llm_chain=llm_chain, output_parser=output_parser, stop=[
             "\nObservation:"], allowed_tools=tool_names, return_intermediate_steps=True)
@@ -101,7 +102,5 @@ class ChecklistPromptGenerator():
             industry: {checklist_organization}
             team or project: {checklist_project}
         """.format(checklist_name=checklist_name, checklist_organization=checklist_organization, checklist_project=checklist_project)
-
-        print(guidelines)
         output = agent_executor.run(guidelines)
         return output
