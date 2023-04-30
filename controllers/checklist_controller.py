@@ -40,12 +40,4 @@ class ChecklistController():
         generated_checklist = self.checklist_generator.generate_checklist(
             checklist_prompt)
 
-        pattern = r'```json(.*?)```'
-        match = re.search(pattern, generated_checklist, re.DOTALL)
-        if match:
-            json_string = match.group(1)
-            generated_checklist = json.loads(json_string)
-        else:
-            print("No match found")
-
         return generated_checklist

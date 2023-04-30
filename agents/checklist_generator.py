@@ -1,12 +1,21 @@
 
+import json
+import re
+
+from flask import g
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
+
+from gql.agent import INSERT_AGENT_RESULT
+from services.hasura_service import HasuraService
+from utils.utils import is_json
 
 
 class ChecklistGenerator():
     # Variables
     checklist_agent_id: str
+    hasura_service = HasuraService()
 
     def __init__(self, checklist_agent_id: str):
         self.checklist_agent_id = checklist_agent_id
@@ -33,9 +42,10 @@ class ChecklistGenerator():
                 - Task dependencies
                 - Task reference links, if possible
                 - Task subtasks
+                - Task subtasks description
                 - Task subtasks time estimate
-                - Task subtasks priority
                 - Task subtasks dependencies
+                - Task subtasks priority
             
             Additionally, please include the following information at the end of the checklist:
 
@@ -54,32 +64,29 @@ class ChecklistGenerator():
                 "title": string  // title of the checklist
                 "tasks": [ 
                     // list of tasks in the checklist
-                    "title" : "",
-                    "description" : "", // task description"
+                    "title" : "", // task title, it should be an actionable sentence
+                    "description" : "", // task description, it should be little more descriptive of the task"
                     "time_estimate" : "", // task time estimate
                     "priority" : "", // task priority
                     "dependencies" : "", // task dependencies
                     "reference_links" : "", // task reference links, if possible
                     "tasks" : [ 
                         // list of sub tasks in the checklist
-                        "title" : "", // sub task title
-                        "description" : "", // task description"
+                        "title" : "", // task title, it should be an actionable sentence
+                        "description" : "", // task description, it should be little more descriptive of the task"
                         "time_estimate" : "", // task time estimate
                         "priority" : "", // task priority
                         "dependencies" : "", // task dependencies
                         "reference_links" : "", // task reference links, if possible
                         "tasks": [ 
                             // if possible list of sub sub tasks in the checklist
-                            "title" : "",
-                            "description" : "", // task description"
+                            "title" : "", // task title, it should be an actionable sentence
+                            "description" : "", // task description, it should be little more descriptive of the task"
                             "time_estimate" : "", // task time estimate
                             "priority" : "", // task priority
                             "dependencies" : "", // task dependencies
                             "reference_links" : "", // task reference links, if possible
-                            "tasks" : [ 
-                                // list of sub tasks in the checklist
-                                "title" : "" // sub task title
-                            ]
+                            "tasks" : [] // list of sub tasks in the checklist
                         ]
                     ]
                 ]
@@ -94,5 +101,44 @@ class ChecklistGenerator():
         )
 
         chain = LLMChain(llm=llm, prompt=prompt)
-        result = chain.run(generated_prompt)
-        return result
+        generated_checklist = chain.run(generated_prompt)
+
+        # Parse the output and get JSON
+        pattern = r'```json(.*?)```'
+        match = re.search(pattern, generated_checklist, re.DOTALL)
+        if match:
+            json_string = match.group(1)
+            generated_checklist = json.loads(json_string)
+        else:
+            print("No match found")
+
+        self.store_results(generated_checklist)
+
+        return generated_checklist
+    
+
+    def store_results(self, generated_checklist):
+        userId = ""
+        if g.get('jwt_session', {}).get('sub', None) is None:
+            return
+        else:
+            userId = g.jwt_session.get('sub')
+
+        # Convert to string if JSON
+        generated_checklist_str = generated_checklist
+        if is_json(generated_checklist_str):
+            generated_checklist_str = json.dumps(generated_checklist)
+
+        agent_result = {
+            "agent_id": self.checklist_agent_id,
+            "agent_type": "checklist_generator",
+            "thoughts": "Generate a checklist based on the generated prompt",
+            "action": "GenerateChecklist",
+            "action_input": "Generate a checklist based on the generated prompt",
+            "results": generated_checklist_str,
+            "is_final_answer": True,
+            "created_by": userId
+        }
+        self.hasura_service.execute(INSERT_AGENT_RESULT, {
+            "agent_result": agent_result
+        })
