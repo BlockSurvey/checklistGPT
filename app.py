@@ -6,6 +6,7 @@ from flask import Flask, g, jsonify, request
 import config
 from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
+from utils.agent_utils import get_agent_by_id
 
 app = Flask(__name__)
 
@@ -38,10 +39,22 @@ def token_required():
 @app.route('/generate-checklist-prompt', methods=['POST'])
 def generate_checklist_prompt_api():
     payload = request.get_json()
-    checklist_agent_id = payload["agent_id"] or None
-    checklist_name = payload["name"] or None
-    checklist_project = payload["project"] or None
-    checklist_organization = payload["organization"] or None
+    checklist_agent_id = payload.get("agent_id", None)
+    checklist_name = payload.get("name", None)
+    checklist_project = payload.get("project", None)
+    checklist_organization = payload.get("organization", None)
+
+    # Null validation
+    if ((checklist_agent_id is None or checklist_agent_id == "") or
+        (checklist_name is None or checklist_name == "") or
+        (checklist_project is None or checklist_project == "") or
+            (checklist_organization is None or checklist_organization == "")):
+        return jsonify({'error': {'message': 'Checklist agent id, checklist name, checklist project and checklist organization cannot be null'}}), 400
+
+    agentDetails = get_agent_by_id(checklist_agent_id)
+    if (agentDetails.get("data", None) is None or agentDetails["data"].get("agents", None) is None or
+            len(agentDetails["data"]["agents"]) == 0):
+        return jsonify({'error': {'message': 'Oops! Agent not found'}}), 400
 
     checklist = ChecklistController(checklist_agent_id)
     result = checklist.generate_checklist_prompt(
@@ -57,8 +70,19 @@ def generate_checklist_prompt_api():
 @app.route('/generate-checklist', methods=['POST'])
 def generate_checklist_api():
     payload = request.get_json()
-    checklist_agent_id = payload["agent_id"] or None
-    checklist_prompt = payload["prompt"] or None
+    checklist_agent_id = payload.get("agent_id", None)
+    checklist_prompt = payload.get("prompt", None)
+
+    # Null validation
+    if ((checklist_agent_id is None or checklist_agent_id == "") or
+            (checklist_prompt is None or checklist_prompt == "")):
+        return jsonify({'error': {'message': 'Checklist agent id and checklist prompt cannot be null'}}), 400
+
+    agentDetails = get_agent_by_id(checklist_agent_id)
+    if (agentDetails.get("data", None) is None or agentDetails["data"].get("agents", None) is None or
+            len(agentDetails["data"]["agents"]) == 0):
+        return jsonify({'error': {'message': 'Oops! Agent not found'}}), 400
+
     checklist = ChecklistController(checklist_agent_id)
     result = checklist.generate_checklist(
         checklist_prompt)
