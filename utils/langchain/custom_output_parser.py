@@ -51,7 +51,6 @@ class CustomOutputParser(AgentOutputParser):
         hasura_service = HasuraService()
         agent_result = {
             "agent_id": self.checklist_agent_id,
-            "agent_type": "checklist_prompt_generator",
             "thoughts": "",
             "action": "FinalAnswer",
             "action_input": "",

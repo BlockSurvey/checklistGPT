@@ -53,7 +53,6 @@ class CustomPromptTemplate(StringPromptTemplate):
             thought, action, action_input, observation = matches[-1]
             agent_result = {
                 "agent_id": self.checklist_agent_id,
-                "agent_type": "checklist_prompt_generator",
                 "thoughts": thought,
                 "action": action,
                 "action_input": action_input,

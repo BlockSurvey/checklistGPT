@@ -131,7 +131,6 @@ class ChecklistGenerator():
 
         agent_result = {
             "agent_id": self.checklist_agent_id,
-            "agent_type": "checklist_generator",
             "thoughts": "Generate a checklist based on the generated prompt",
             "action": "GenerateChecklist",
             "action_input": "Generate a checklist based on the generated prompt",

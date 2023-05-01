@@ -1,4 +1,5 @@
 import json
+
 import jwt
 from flask import Flask, g, jsonify, request
 
@@ -37,7 +38,7 @@ def token_required():
 @app.route('/generate-checklist-prompt', methods=['POST'])
 def generate_checklist_prompt_api():
     payload = request.get_json()
-    checklist_agent_id = payload["id"] or None
+    checklist_agent_id = payload["agent_id"] or None
     checklist_name = payload["name"] or None
     checklist_project = payload["project"] or None
     checklist_organization = payload["organization"] or None
@@ -56,7 +57,7 @@ def generate_checklist_prompt_api():
 @app.route('/generate-checklist', methods=['POST'])
 def generate_checklist_api():
     payload = request.get_json()
-    checklist_agent_id = payload["id"] or None
+    checklist_agent_id = payload["agent_id"] or None
     checklist_prompt = payload["prompt"] or None
     checklist = ChecklistController(checklist_agent_id)
     result = checklist.generate_checklist(
