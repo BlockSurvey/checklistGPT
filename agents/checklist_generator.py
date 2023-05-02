@@ -6,6 +6,7 @@ from flask import g
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
+import regex
 
 from gql.agent import INSERT_AGENT_RESULT
 from services.hasura_service import HasuraService
@@ -110,12 +111,17 @@ class ChecklistGenerator():
             json_string = match.group(1)
             generated_checklist = json.loads(json_string)
         else:
-            print("No match found")
+            json_pattern = r'\{(?:[^{}]|(?R))*\}'
+            match = regex.search(json_pattern, generated_checklist)
+            if match:
+                json_string = match.group()
+                generated_checklist = json.loads(json_string)
+            else:
+                print("No match found")
 
         self.store_results(generated_checklist)
 
         return generated_checklist
-    
 
     def store_results(self, generated_checklist):
         userId = ""
