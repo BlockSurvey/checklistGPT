@@ -21,7 +21,7 @@ class ChecklistPromptGenerator():
             temperature=0.5, model_name="gpt-3.5-turbo")
 
         prompt_creator_prompt = PromptTemplate.from_template(
-            "Generate or improve the quality of the prompt for checklist creation. Improve this prompt: {text}"
+            "You are an expert in generating a very detailed and clear prompt for checklist creation. Generate or improve the quality of the prompt for checklist creation. Generate or improve this prompt: {text}"
         )
         prompt_creator_chain = LLMChain(
             llm=llm, prompt=prompt_creator_prompt)
@@ -65,9 +65,12 @@ class ChecklistPromptGenerator():
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)
         Thought: I now know the final answer
-        Final Answer: the final answer should be a well refined and actionable prompt
+        Final Answer: the final answer should be in the following format:
+            - Final answer should starts with a well refined and actionable prompt as paragraph
+            - Final answer should include all list of points and references from research results
+            - Final answer should include all list of standards, guidelines and methodologies for "industry" from research results
 
-        Begin! Remember that your final answer should be a well refined and actionable prompt
+        Begin! Remember that your final answer should be a well refined and actionable prompt and follow the above format
 
         Guidelines: {input}
         {agent_scratchpad}"""
