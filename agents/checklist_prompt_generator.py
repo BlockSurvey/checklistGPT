@@ -65,12 +65,12 @@ class ChecklistPromptGenerator():
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)
         Thought: I now know the final answer
-        Final Answer: the final answer should be in the following format:
-            - Final answer should starts with a well refined and actionable prompt as paragraph
-            - Final answer should include all list of points and references from research results
-            - Final answer should include all list of standards, guidelines and methodologies for "industry" from research results
+        Final Answer: Generate a final prompt based on your research results and it should be in the following format:
+            - It should start with a well refined and actionable prompt paragraph
+            - It should include all the list of points and references from research results
+            - It should include all list of standards, guidelines and methodologies for "industry" from research results
 
-        Begin! Remember that your final answer should be a well refined and actionable prompt and follow the above format
+        Begin! Remember that your final answer should be a well refined and actionable prompt
 
         Guidelines: {input}
         {agent_scratchpad}"""
