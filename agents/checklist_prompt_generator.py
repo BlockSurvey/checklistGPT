@@ -100,18 +100,18 @@ class ChecklistPromptGenerator():
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools, verbose=True)
         guidelines = """
-            Generate a detailed and actionable prompt to create a checklist for the "checklist_name".
+            Create/Generate a refined, more-detailed prompt to create a checklist for the "checklist_name".
 
-            follow the following process: 
-
-            - Based on the "checklist_name" I give you, you will generate the first version of the prompt for checklist creation.
-            - An improved prompt for the checklist creation with standard, guidelines and methodologies for "industry". 
-            - Ask yourself relevant questions and improve the quality of the checklist creation prompt.
-            - Include all of your research results in the final prompt.
+            follow the following process:
+            - Based on the "checklist_name" I give you, you will generate the first version of the prompt for checklist creation
+            - An improved prompt for the checklist creation with standard, guidelines and methodologies for "industry"
+            - Ask yourself relevant questions and improve the quality of the checklist creation prompt
+            - Include all of your research results in the final prompt
 
             checklist_name: {checklist_name}
             industry: {checklist_organization}
-            project: {checklist_project}
-        """.format(checklist_name=checklist_name, checklist_organization=checklist_organization, checklist_project=checklist_project)
+        """.format(checklist_name=checklist_name, checklist_organization=checklist_organization)
         output = agent_executor.run(guidelines)
         return output
+
+        # project: {checklist_project}

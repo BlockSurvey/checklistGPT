@@ -95,6 +95,8 @@ class ChecklistGenerator():
         chain = LLMChain(llm=llm, prompt=prompt)
         generated_checklist = chain.run(generated_prompt)
 
+        print(generated_checklist)
+
         # Parse the output and get JSON
         pattern = r'```json(.*?)```'
         match = re.search(pattern, generated_checklist, re.DOTALL)
