@@ -52,7 +52,7 @@ class ChecklistPromptGenerator():
         ]
 
         # Set up the base template
-        template = """Generate a detailed prompt as best you can by asking relevant questions, You have access to the following tools:
+        template = """Generate a detailed prompt as best you can by asking relevant questions for given checklist_name, You have access to the following tools:
 
         {tools}
 
@@ -65,9 +65,9 @@ class ChecklistPromptGenerator():
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)
         Thought: I now know the final answer
-        Final Answer: the final answer should be a detailed prompt
+        Final Answer: the final answer should be a detailed prompt for given checklist_name
 
-        Begin! Remember that your final answer should be a detailed prompt
+        Begin! Remember that your final answer should be a detailed prompt for given checklist_name
 
         Guidelines: {input}
         {agent_scratchpad}"""
@@ -88,17 +88,37 @@ class ChecklistPromptGenerator():
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools, verbose=True)
         guidelines = """
-            I want you to become my checklist master creator, by helping me to create the best possible checklist. 
+            Generate a detailed prompt for the "checklist_name" checklist. This checklist is for this "industry" and this "project".
 
             In order to do this we will follow the following process: 
-            - Based on the "checklist_name" I give you, you will generate the following: 
+            - Based on the "checklist_name" I give you, you will generate the prompt for the checklist creation.
             - An improved prompt for the checklist creation with standard, guidelines and methodologies for "industry". 
             - Ask yourself relevant questions and improve the quality of the checklist creation prompt. 
-            - We will go through this process repeatedly three times to arrive at a final prompt
+            - Include all your important research results in the checklist creation prompt.
 
             checklist_name: {checklist_name}
             industry: {checklist_organization}
-            team or project: {checklist_project}
+            project: {checklist_project}
         """.format(checklist_name=checklist_name, checklist_organization=checklist_organization, checklist_project=checklist_project)
         output = agent_executor.run(guidelines)
         return output
+
+        # template = """Answer the following questions as best you can, but speaking as a pirate might speak. You have access to the following tools:
+
+        # {tools}
+
+        # Use the following format:
+
+        # Question: the input question you must answer
+        # Thought: you should always think about what to do and ask relevant questions your self to generate better answer
+        # Action: the action to take, should be one of [{tool_names}]
+        # Action Input: the input to the action
+        # Observation: the result of the action
+        # ... (this Thought/Action/Action Input/Observation can repeat N times)
+        # Thought: I now know the final answer
+        # Final Answer: the final answer to the original input question
+
+        # Begin! Remember to speak as a pirate when giving your final answer. Use lots of "Arg"s
+
+        # Question: {input}
+        # {agent_scratchpad}"""
