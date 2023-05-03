@@ -36,15 +36,13 @@ class CustomOutputParser(AgentOutputParser):
                 return_values={"output": llm_output.strip()},
                 log=llm_output,
             )
+
+            # action = "PromptGenerator"
+            # action_input = "Generate a final prompt using the prompt generator based on your research"
+            # return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
+
         action = match.group(1).strip()
         action_input = match.group(2)
-
-        # action = "PromptGenerator"
-        # action_input = llm_output
-        # if match:
-        #     action = match.group(1).strip()
-        #     action_input = match.group(2)
-        # Return the action and action input
         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
     def store_results(self, observation):

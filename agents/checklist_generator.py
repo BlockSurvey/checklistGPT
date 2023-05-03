@@ -26,7 +26,8 @@ class ChecklistGenerator():
         llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
 
         dynamicTemplate = """
-            {final_prompt}
+            Create a checklist using below Prompt,
+            Prompt: "{final_prompt}"
 
              In order to do this we will follow the following process: 
                 - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps.

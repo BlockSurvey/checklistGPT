@@ -52,7 +52,7 @@ class ChecklistPromptGenerator():
         ]
 
         # Set up the base template
-        template = """Create a prompt for checklist as best you can by asking relevant questions, You have access to the following tools:
+        template = """Generate a detailed prompt as best you can by asking relevant questions, You have access to the following tools:
 
         {tools}
 
@@ -65,11 +65,9 @@ class ChecklistPromptGenerator():
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)
         Thought: I now know the final answer
-        Final Answer: the final answer should be a well refined and actionable prompt and it should be in the following format:
-            - It should start with a well refined and actionable prompt paragraph
-            - It should include all your research points and references
+        Final Answer: the final answer should be a detailed prompt
 
-        Begin! Remember that your final answer should be a well refined and actionable prompt
+        Begin! Remember that your final answer should be a detailed prompt
 
         Guidelines: {input}
         {agent_scratchpad}"""
@@ -86,15 +84,13 @@ class ChecklistPromptGenerator():
             checklist_agent_id=self.checklist_agent_id)
         tool_names = [tool.name for tool in tools]
         agent = LLMSingleActionAgent(llm_chain=llm_chain, output_parser=output_parser, stop=[
-            "\nObservation:"], allowed_tools=tool_names, return_intermediate_steps=True)
+            "\nObservation:"], allowed_tools=tool_names)
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools, verbose=True)
         guidelines = """
             I want you to become my checklist master creator, by helping me to create the best possible checklist. 
 
             In order to do this we will follow the following process: 
-
-
             - Based on the "checklist_name" I give you, you will generate the following: 
             - An improved prompt for the checklist creation with standard, guidelines and methodologies for "industry". 
             - Ask yourself relevant questions and improve the quality of the checklist creation prompt. 
