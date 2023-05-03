@@ -1,6 +1,7 @@
 from langchain.agents import AgentExecutor, LLMSingleActionAgent, Tool
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.utilities import GoogleSearchAPIWrapper
 
@@ -31,6 +32,12 @@ class ChecklistPromptGenerator():
         )
         relevant_chain = LLMChain(llm=llm, prompt=relevant_prompt)
 
+        llm_search_prompt = PromptTemplate.from_template(
+            "You are an assistant who is an expert at answering questions about anything. Answer this question: {question}"
+        )
+        llm_search_chain = LLMChain(llm=OpenAI(
+            temperature=0), prompt=llm_search_prompt)
+
         google_search = GoogleSearchAPIWrapper()
 
         tools = [
@@ -40,7 +47,7 @@ class ChecklistPromptGenerator():
                 description="useful for reviewing, generating, re-iterating and refining a prompt, you could use this tool to generate a prompt",
             ),
             Tool(
-                name="Search",
+                name="WebSearch",
                 func=google_search.run,
                 description="useful for when you need to answer questions about current events or status. Even if the answer is not found in Search tool, you could use this tool to find the answer.",
             ),
@@ -48,26 +55,31 @@ class ChecklistPromptGenerator():
                 name="RelevantQuestions",
                 func=relevant_chain.run,
                 description="useful for when you need to come up with relevant questions for the given objective. Input: an objective to create a relevant question list. Output: a relevant question list for that objective. Please be very clear what the objective is!",
-            )
+            ),
+            Tool(
+                name="LLMSearch",
+                func=llm_search_chain.run,
+                description="useful for when you need to answer the question. I am trained large language model with global data till Jun 2021. Input: a question. Output: the answer. Please be very clear what the question is!",
+            ),
         ]
 
         # Set up the base template
-        template = """Generate a detailed prompt as best you can by asking relevant questions for given checklist_name, You have access to the following tools:
+        template = """Generate a prompt as best you can by asking relevant questions and finding answers for given guidelines, You have access to the following tools:
 
         {tools}
 
         Use the following format:
 
         Guidelines: the input guidelines you must use to generate a prompt for checklist creation
-        Thought: you should always ask yourself relevant questions and improve the quality of the prompt for checklist creation
+        Thought: you should always ask yourself relevant questions, find answer and improve the quality of the prompt for checklist creation
         Action: the action to take, should be one of [{tool_names}]
         Action Input: the input to the action
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)
         Thought: I now know the final answer
-        Final Answer: the final answer should be a detailed prompt for given checklist_name
+        Final Answer: the final answer should be a prompt for given objective
 
-        Begin! Remember that your final answer should be a detailed prompt for given checklist_name
+        Begin! Remember that your final answer should be a prompt for given objective
 
         Guidelines: {input}
         {agent_scratchpad}"""
@@ -88,13 +100,14 @@ class ChecklistPromptGenerator():
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools, verbose=True)
         guidelines = """
-            Generate a detailed prompt for the "checklist_name" checklist. This checklist is for this "industry" and this "project".
+            Generate a detailed and actionable prompt to create a checklist for the "checklist_name".
 
-            In order to do this we will follow the following process: 
-            - Based on the "checklist_name" I give you, you will generate the prompt for the checklist creation.
+            follow the following process: 
+
+            - Based on the "checklist_name" I give you, you will generate the first version of the prompt for checklist creation.
             - An improved prompt for the checklist creation with standard, guidelines and methodologies for "industry". 
-            - Ask yourself relevant questions and improve the quality of the checklist creation prompt. 
-            - Include all your important research results in the checklist creation prompt.
+            - Ask yourself relevant questions and improve the quality of the checklist creation prompt.
+            - Include all of your research results in the final prompt.
 
             checklist_name: {checklist_name}
             industry: {checklist_organization}
@@ -102,23 +115,3 @@ class ChecklistPromptGenerator():
         """.format(checklist_name=checklist_name, checklist_organization=checklist_organization, checklist_project=checklist_project)
         output = agent_executor.run(guidelines)
         return output
-
-        # template = """Answer the following questions as best you can, but speaking as a pirate might speak. You have access to the following tools:
-
-        # {tools}
-
-        # Use the following format:
-
-        # Question: the input question you must answer
-        # Thought: you should always think about what to do and ask relevant questions your self to generate better answer
-        # Action: the action to take, should be one of [{tool_names}]
-        # Action Input: the input to the action
-        # Observation: the result of the action
-        # ... (this Thought/Action/Action Input/Observation can repeat N times)
-        # Thought: I now know the final answer
-        # Final Answer: the final answer to the original input question
-
-        # Begin! Remember to speak as a pirate when giving your final answer. Use lots of "Arg"s
-
-        # Question: {input}
-        # {agent_scratchpad}"""

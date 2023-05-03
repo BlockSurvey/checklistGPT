@@ -2,11 +2,11 @@
 import json
 import re
 
+import regex
 from flask import g
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
-import regex
 
 from gql.agent import INSERT_AGENT_RESULT
 from services.hasura_service import HasuraService
@@ -72,7 +72,7 @@ class ChecklistGenerator():
                     "priority" : "", // task priority
                     "dependencies" : "", // task dependencies
                     "reference_links" : "", // task reference links, if possible
-                    "tasks" : [ 
+                    "subtasks" : [ 
                         // list of sub tasks in the checklist
                         "title" : "", // task title, it should be an actionable sentence
                         "description" : "", // task description, it should be little more descriptive of the task"
@@ -80,16 +80,6 @@ class ChecklistGenerator():
                         "priority" : "", // task priority
                         "dependencies" : "", // task dependencies
                         "reference_links" : "", // task reference links, if possible
-                        "tasks": [ 
-                            // if possible list of sub sub tasks in the checklist
-                            "title" : "", // task title, it should be an actionable sentence
-                            "description" : "", // task description, it should be little more descriptive of the task"
-                            "time_estimate" : "", // task time estimate
-                            "priority" : "", // task priority
-                            "dependencies" : "", // task dependencies
-                            "reference_links" : "", // task reference links, if possible
-                            "tasks" : [] // list of sub tasks in the checklist
-                        ]
                     ]
                 ]
             }
@@ -104,6 +94,8 @@ class ChecklistGenerator():
 
         chain = LLMChain(llm=llm, prompt=prompt)
         generated_checklist = chain.run(generated_prompt)
+
+        print(generated_checklist)
 
         # Parse the output and get JSON
         pattern = r'```json(.*?)```'
