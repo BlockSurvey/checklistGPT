@@ -77,9 +77,9 @@ class ChecklistPromptGenerator():
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)
         Thought: I now know the final answer
-        Final Answer: the final answer should be a prompt for given objective
+        Final Answer: the final answer should be a very detailed prompt to create a checklist for given guidelines
 
-        Begin! Remember that your final answer should be a prompt for given objective
+        Begin! Remember that your final answer should be a very clear and detailed prompt
 
         Guidelines: {input}
         {agent_scratchpad}"""
@@ -100,16 +100,10 @@ class ChecklistPromptGenerator():
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools, verbose=True)
         guidelines = """
-            Create/Generate a refined, more-detailed prompt to create a checklist for the "checklist_name".
+            Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist.
 
-            follow the following process:
-            - Based on the "checklist_name" I give you, you will generate the first version of the prompt for checklist creation
-            - An improved prompt for the checklist creation with standard, guidelines and methodologies for "industry"
-            - Ask yourself relevant questions and improve the quality of the checklist creation prompt
-            - Include all of your research results in the final prompt
-
-            checklist_name: {checklist_name}
-            industry: {checklist_organization}
+            in order to improve the prompt, follow the following process:
+            - An improved prompt for the checklist creation with standard, guidelines and methodologies for the "{checklist_organization}" industry
         """.format(checklist_name=checklist_name, checklist_organization=checklist_organization)
         output = agent_executor.run(guidelines)
         return output

@@ -28,14 +28,16 @@ class CustomOutputParser(AgentOutputParser):
         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
         match = re.search(regex, llm_output, re.DOTALL)
         if not match:
-            # raise ValueError(f"Could not parse LLM output: `{llm_output}`")
-            self.store_results(llm_output.strip())
-            return AgentFinish(
-                # Return values is generally always a dictionary with a single `output` key
-                # It is not recommended to try anything else at the moment :)
-                return_values={"output": llm_output.strip()},
-                log=llm_output,
-            )
+            if "final answer" in llm_output or "final prompt" in llm_output:
+                self.store_results(llm_output.strip())
+                return AgentFinish(
+                    # Return values is generally always a dictionary with a single `output` key
+                    # It is not recommended to try anything else at the moment :)
+                    return_values={"output": llm_output.strip()},
+                    log=llm_output,
+                )
+            else:
+                raise ValueError(f"Could not parse LLM output: `{llm_output}`")
 
             # action = "PromptGenerator"
             # action_input = "Generate a final prompt using the prompt generator based on your research"
