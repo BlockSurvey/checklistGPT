@@ -1,11 +1,5 @@
-import json
-import re
-from langchain.chains import LLMChain
-from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-
-from agents.checklist_prompt_generator import ChecklistPromptGenerator
 from agents.checklist_generator import ChecklistGenerator
+from agents.checklist_prompt_generator import ChecklistPromptGenerator
 
 
 class ChecklistController():
@@ -37,7 +31,10 @@ class ChecklistController():
                 (checklist_prompt is None or checklist_prompt == "")):
             return "Checklist agent id and checklist prompt cannot be null"
 
-        generated_checklist = self.checklist_generator.generate_checklist(
+        # generated_checklist = self.checklist_generator.generate_checklist(
+        #     checklist_prompt)
+
+        generated_checklist = self.checklist_generator.generate_checklist_using_subsequent_chain(
             checklist_prompt)
 
         return generated_checklist

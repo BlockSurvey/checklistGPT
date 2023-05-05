@@ -4,7 +4,7 @@ import re
 
 import regex
 from flask import g
-from langchain.chains import LLMChain
+from langchain.chains import LLMChain, SimpleSequentialChain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 
@@ -95,8 +95,6 @@ class ChecklistGenerator():
         chain = LLMChain(llm=llm, prompt=prompt)
         generated_checklist = chain.run(generated_prompt)
 
-        print(generated_checklist)
-
         # Parse the output and get JSON
         pattern = r'```json(.*?)```'
         match = re.search(pattern, generated_checklist, re.DOTALL)
@@ -140,3 +138,70 @@ class ChecklistGenerator():
         self.hasura_service.execute(INSERT_AGENT_RESULT, {
             "agent_result": agent_result
         })
+
+    def parse_result_and_get_json(self, result):
+        result_string = result
+        # Parse the output and get JSON
+        pattern = r'```json(.*?)```'
+        match = re.search(pattern, result_string, re.DOTALL)
+        if match:
+            json_string = match.group(1)
+            result_string = json.loads(json_string)
+        else:
+            json_pattern = r'\{(?:[^{}]|(?R))*\}'
+            match = regex.search(json_pattern, result_string)
+            if match:
+                json_string = match.group()
+                result_string = json.loads(json_string)
+            else:
+                print("No match found")
+
+        return result_string
+
+    def generate_checklist_using_subsequent_chain(self, generated_prompt: str):
+        # Chain to generate a checklist
+        llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+        dynamic_template = """You are an expert checklist maker/creator.
+
+            Create a checklist using below Prompt,
+            Prompt: "{final_prompt}"
+
+             In order to do this we will follow the following process: 
+                - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps.
+                - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks.
+                - Keep it simple: A checklist should be simple and straightforward, so try to avoid adding too many details or making it too complex. Focus on the essentials and keep it short and sweet.
+                - Number of tasks: Minimum 15 tasks would be great.
+
+            Note: Ask yourself relevant questions and improve the quality of the checklist.
+
+            Important: Do not return half results, return full results.
+            
+            {format_instructions}"""
+        checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
+
+            ```json
+            {
+                "title" : "", // checklist title
+                "tasks": [ // list of tasks in the checklist
+                    "title" : "", // task title
+                    "subtasks" : [ 
+                        // list of sub tasks
+                    ]
+                ]
+            }
+            ```"""
+        prompt_template = PromptTemplate(
+            input_variables=["final_prompt"], template=dynamic_template, partial_variables={"format_instructions": checklist_format_instructions})
+        checklist_creation_chain = LLMChain(llm=llm, prompt=prompt_template)
+
+        # This is the overall chain where we run these all the chains in sequence.
+        overall_chain = SimpleSequentialChain(
+            chains=[checklist_creation_chain])
+        result = overall_chain.run(generated_prompt)
+
+        # Parse the output and get JSON
+        json_result = self.parse_result_and_get_json(result)
+
+        self.store_results(json_result)
+
+        return json_result
