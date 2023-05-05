@@ -161,19 +161,19 @@ class ChecklistGenerator():
     def generate_checklist_using_subsequent_chain(self, generated_prompt: str):
         # Chain to generate a checklist
         llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
-        dynamic_template = """You are an expert checklist maker/creator.
-
-            Create a checklist using below Prompt,
+        dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear and detailed checklist using below Prompt,
+            
             Prompt: "{final_prompt}"
+            
+             In order to do this we will follow the following rules: 
+                - Ask relevant questions: Ask yourself relevant questions and improve the quality of the checklist
+                - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps
+                - Generate detailed tasks: Use given prompt to generate a more detailed checklist and detailed subtasks
+                - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks
+                - Number of tasks: Minimum 15 tasks would be great
 
-             In order to do this we will follow the following process: 
-                - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps.
-                - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks.
-                - Keep it simple: A checklist should be simple and straightforward, so try to avoid adding too many details or making it too complex. Focus on the essentials and keep it short and sweet.
-                - Number of tasks: Minimum 15 tasks would be great.
-
-            Note: Ask yourself relevant questions and improve the quality of the checklist.
-
+            Begin: Remember ask relevant questions to improve the quality of the checklist
+            
             Important: Do not return half results, return full results.
             
             {format_instructions}"""
