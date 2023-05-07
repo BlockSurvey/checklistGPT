@@ -98,7 +98,7 @@ class ChecklistPromptGenerator():
         agent = LLMSingleActionAgent(llm_chain=llm_chain, output_parser=output_parser, stop=[
             "\nObservation:"], allowed_tools=tool_names)
         agent_executor = AgentExecutor.from_agent_and_tools(
-            agent=agent, tools=tools, verbose=True)
+            agent=agent, tools=tools)
         guidelines = """
             Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist.
 

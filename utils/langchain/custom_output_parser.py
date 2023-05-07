@@ -37,11 +37,18 @@ class CustomOutputParser(AgentOutputParser):
                     log=llm_output,
                 )
             else:
-                raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+                print(llm_output)
+                self.store_results(llm_output.strip())
+                return AgentFinish(
+                    return_values={"output": llm_output.strip()},
+                    log=llm_output,
+                )
 
-            # action = "PromptGenerator"
-            # action_input = "Generate a final prompt using the prompt generator based on your research"
-            # return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
+                # raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+
+                # action = "PromptGenerator"
+                # action_input = "Generate a final prompt using the prompt generator based on your research"
+                # return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
         action = match.group(1).strip()
         action_input = match.group(2)
