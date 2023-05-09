@@ -7,6 +7,7 @@ from flask_cors import CORS
 import config
 from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
+from controllers.checklist_controller_new import ChecklistControllerNew
 from utils.agent_utils import get_agent_by_id
 
 app = Flask(__name__)
@@ -95,6 +96,40 @@ def generate_checklist_api():
         }
     }
     return jsonify(response)
+
+
+@app.route('/generate-checklist-using-ai', methods=['POST'])
+def generate_checklist_using_ai_api():
+    payload = request.get_json()
+    org_id = payload.get("orgId", None)
+    project_id = payload.get("projectId", None)
+    name = payload.get("name", None)
+    project = payload.get("project", None)
+    organization = payload.get("organization", None)
+    agent_manager_id = payload.get("id", None)
+
+    # Null validation
+    if ((org_id is None or org_id == "") or
+        (project_id is None or project_id == "") or
+        (name is None or name == "") or
+        (project is None or project == "") or
+        (organization is None or organization == "") or
+            (agent_manager_id is None or agent_manager_id == "")):
+        return jsonify({'error': {'message': 'Missing parameters'}}), 400
+
+    try:
+        checklist = ChecklistControllerNew(
+            org_id, project_id, name, project, organization, agent_manager_id)
+        checklist.generate_checklist()
+
+        return jsonify({
+            "data": {
+                "message": "Checklist generated successfully",
+            }
+        }), 200
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
 
 
 @app.route('/')

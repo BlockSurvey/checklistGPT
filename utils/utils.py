@@ -1,5 +1,7 @@
 import json
 
+from flask import g
+
 
 def is_json(value):
     if isinstance(value, (str, bytes, bytearray)):
@@ -11,3 +13,13 @@ def is_json(value):
     elif isinstance(value, dict):
         return True
     return False
+
+
+def get_user_id():
+    userId = ""
+    if g.get('jwt_session', {}).get('sub', None) is None:
+        return
+    else:
+        userId = g.jwt_session.get('sub')
+
+    return userId
