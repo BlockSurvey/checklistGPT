@@ -52,7 +52,7 @@ class ChecklistControllerNew():
 
         if (len(agent_managers) >= int(ai_checklists_limitation_count)):
             raise ValueError(
-                "You have reached the limit of AI Checklists for this organization")
+                "AI Checklist limit reached for this organization. Please upgrade or contact support.")
 
         return True
 
