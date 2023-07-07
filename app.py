@@ -113,7 +113,6 @@ def generate_checklist_using_ai_api():
         (project_id is None or project_id == "") or
         (name is None or name == "") or
         (project is None or project == "") or
-        (organization is None or organization == "") or
             (agent_manager_id is None or agent_manager_id == "")):
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
 

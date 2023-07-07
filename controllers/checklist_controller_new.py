@@ -109,7 +109,6 @@ class ChecklistControllerNew():
         if ((self.org_id is None or self.org_id == "") or
            (self.name is None or self.name == "") or
            (self.project is None or self.project == "") or
-           (self.organization is None or self.organization == "") or
            (self.agent_manager_id is None or self.agent_manager_id == "")):
             raise ValueError("Missing required parameters")
 

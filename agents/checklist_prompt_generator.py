@@ -99,12 +99,22 @@ class ChecklistPromptGenerator():
             "\nObservation:"], allowed_tools=tool_names)
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools)
+
         guidelines = """
             Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist.
 
             in order to improve the prompt, follow the following process:
             - An improved prompt for the checklist creation with standard, guidelines and methodologies for the "{checklist_organization}" industry
         """.format(checklist_name=checklist_name, checklist_organization=checklist_organization)
+        # If the checklist_organization is None or empty
+        if (checklist_organization is None or checklist_organization == ""):
+            guidelines = """
+                Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist.
+
+                in order to improve the prompt, follow the following process:
+                - An improved prompt for the checklist creation with standard, guidelines and methodologies
+            """.format(checklist_name=checklist_name)
+
         output = agent_executor.run(guidelines)
         return output
 
