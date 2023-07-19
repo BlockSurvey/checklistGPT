@@ -1,4 +1,4 @@
-from langchain.agents import AgentExecutor, LLMSingleActionAgent, Tool
+from langchain.agents import AgentExecutor, LLMSingleActionAgent, Tool, AgentType
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -94,9 +94,10 @@ class ChecklistPromptGenerator():
         llm_chain = LLMChain(llm=llm, prompt=prompt)
         output_parser = CustomOutputParser(
             checklist_agent_id=self.checklist_agent_id)
+
         tool_names = [tool.name for tool in tools]
         agent = LLMSingleActionAgent(llm_chain=llm_chain, output_parser=output_parser, stop=[
-            "\nObservation:"], allowed_tools=tool_names)
+            "\nObservation:"], allowed_tools=tool_names, agent=AgentType.OPENAI_FUNCTIONS)
         agent_executor = AgentExecutor.from_agent_and_tools(
             agent=agent, tools=tools)
 

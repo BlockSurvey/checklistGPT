@@ -8,6 +8,7 @@ import config
 from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
 from controllers.checklist_controller_new import ChecklistControllerNew
+from controllers.checklist_metadata_controller import ChecklistMetadataController
 from utils.agent_utils import get_agent_by_id
 
 app = Flask(__name__)
@@ -24,7 +25,7 @@ def token_required():
         auth_header = request.headers.get('Authorization')
 
         if not auth_header:
-            return jsonify({'message': 'Token is missing!'}), 401
+            return jsonify({'error': {'message': 'Token is missing!'}}), 400
 
         jwtSecretObject = json.loads(JWT_SECRET)
 
@@ -35,9 +36,9 @@ def token_required():
             # Store the decoded payload in the 'g' object
             g.jwt_session = payload
         except jwt.ExpiredSignatureError:
-            return jsonify({'message': 'Token has expired!'}), 401
+            return jsonify({'error': {'message': 'Token has expired!'}}), 401
         except jwt.InvalidTokenError:
-            return jsonify({'message': 'Invalid token!'}), 401
+            return jsonify({'error': {'message': 'Invalid token!'}}), 401
 
 
 @app.route('/generate-checklist-prompt', methods=['POST'])
@@ -126,6 +127,27 @@ def generate_checklist_using_ai_api():
                 "message": "Checklist generated successfully",
             }
         }), 200
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+
+
+@app.route('/generate-checklist-metadata', methods=['POST'])
+def generate_checklist_metadata():
+    payload = request.get_json()
+    tasks = payload.get("tasks", None)
+
+    if (tasks is None or len(tasks) == 0):
+        return jsonify({'error': {'message': 'Tasks cannot be null'}}), 400
+
+    try:
+        checklist_metadata_generator = ChecklistMetadataController()
+        result = checklist_metadata_generator.generate_checklist_metadata(
+            tasks)
+
+        return jsonify({"data": {
+            "metadata": result
+        }})
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500

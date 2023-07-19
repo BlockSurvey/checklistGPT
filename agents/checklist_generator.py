@@ -11,6 +11,7 @@ from langchain.prompts import PromptTemplate
 from gql.agent import INSERT_AGENT_RESULT
 from services.hasura_service import HasuraService
 from utils.utils import is_json
+from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 
 
 class ChecklistGenerator():
@@ -139,25 +140,6 @@ class ChecklistGenerator():
             "agent_result": agent_result
         })
 
-    def parse_result_and_get_json(self, result):
-        result_string = result
-        # Parse the output and get JSON
-        pattern = r'```json(.*?)```'
-        match = re.search(pattern, result_string, re.DOTALL)
-        if match:
-            json_string = match.group(1)
-            result_string = json.loads(json_string)
-        else:
-            json_pattern = r'\{(?:[^{}]|(?R))*\}'
-            match = regex.search(json_pattern, result_string)
-            if match:
-                json_string = match.group()
-                result_string = json.loads(json_string)
-            else:
-                print("No match found")
-
-        return result_string
-
     def generate_checklist_using_subsequent_chain(self, generated_prompt: str):
         # Chain to generate a checklist
         llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
@@ -200,7 +182,7 @@ class ChecklistGenerator():
         result = overall_chain.run(generated_prompt)
 
         # Parse the output and get JSON
-        json_result = self.parse_result_and_get_json(result)
+        json_result = parse_agent_result_and_get_json(result)
 
         self.store_results(json_result)
 
