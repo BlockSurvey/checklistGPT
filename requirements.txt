@@ -1,6 +1,6 @@
 Flask
 flask_cors
-Gunicorn
+Gunicorn==21.1.0
 langchain==0.0.235
 google-api-python-client
 openai
@@ -9,4 +9,5 @@ requests
 pyjwt
 regex
 uuid
-json5
+json5==0.9.14
+gevent

@@ -112,56 +112,53 @@ class ChecklistControllerNew():
            (self.agent_manager_id is None or self.agent_manager_id == "")):
             raise ValueError("Missing required parameters")
 
-        try:
-            # Free organization can have only three agentMangers
-            self.org_limit_validation()
+        # Free organization can have only three agentMangers
+        self.org_limit_validation()
+        
+        # Create an agentManager and agent
+        agent_manager_id = self.agent_manager_id
+        agent_manager_name = "Agent Manager for checklist - " + self.name
+        prompt_generator_agent_id = str(uuid.uuid4())
+        agent_name = "Agent for checklist prompt generator - " + self.name
+        agent_manager_mutation_result = create_agent_manager_and_agent(
+            agent_manager_id, agent_manager_name, prompt_generator_agent_id, agent_name, self.org_id, self.name)
 
-            # Create an agentManager and agent
-            agent_manager_id = self.agent_manager_id
-            agent_manager_name = "Agent Manager for checklist - " + self.name
-            prompt_generator_agent_id = str(uuid.uuid4())
-            agent_name = "Agent for checklist prompt generator - " + self.name
-            agent_manager_mutation_result = create_agent_manager_and_agent(
-                agent_manager_id, agent_manager_name, prompt_generator_agent_id, agent_name, self.org_id, self.name)
+        # Validate the mutations
+        if (agent_manager_mutation_result.get("data", None) is None or
+            agent_manager_mutation_result["data"].get("insert_agent_managers", None) is None or
+            agent_manager_mutation_result["data"]["insert_agent_managers"].get("returning", None) is None or
+            len(agent_manager_mutation_result["data"]["insert_agent_managers"]["returning"]) == 0 or
+            agent_manager_mutation_result["data"].get("insert_agents", None) is None or
+            agent_manager_mutation_result["data"]["insert_agents"].get("returning", None) is None or
+                len(agent_manager_mutation_result["data"]["insert_agents"]["returning"]) == 0):
+            raise ValueError("Agent Manager creation is failed")
 
-            # Validate the mutations
-            if (agent_manager_mutation_result.get("data", None) is None or
-                agent_manager_mutation_result["data"].get("insert_agent_managers", None) is None or
-                agent_manager_mutation_result["data"]["insert_agent_managers"].get("returning", None) is None or
-                len(agent_manager_mutation_result["data"]["insert_agent_managers"]["returning"]) == 0 or
-                agent_manager_mutation_result["data"].get("insert_agents", None) is None or
-                agent_manager_mutation_result["data"]["insert_agents"].get("returning", None) is None or
-                    len(agent_manager_mutation_result["data"]["insert_agents"]["returning"]) == 0):
-                raise ValueError("Agent Manager creation is failed")
+        # Generate and a prompt
+        checklist_prompt_generator = ChecklistPromptGenerator(
+            prompt_generator_agent_id)
+        generated_prompt = checklist_prompt_generator.generate_prompt(
+            self.name, self.project, self.organization)
+        
+        # Create a agent to generate a checklist
+        checklist_generator_agent_id = str(uuid.uuid4())
+        checklist_generator_agent_name = "Agent for checklist generator - " + self.name
+        agent_manager_mutation_result = create_agent(
+            agent_manager_id, checklist_generator_agent_id, checklist_generator_agent_name)
 
-            # Generate and a prompt
-            checklist_prompt_generator = ChecklistPromptGenerator(
-                prompt_generator_agent_id)
-            generated_prompt = checklist_prompt_generator.generate_prompt(
-                self.name, self.project, self.organization)
+        # Store the checklist result
+        checklist_generator = ChecklistGenerator(
+            checklist_generator_agent_id)
+        generated_checklist = checklist_generator.generate_checklist_using_subsequent_chain(
+            generated_prompt)
 
-            # Create a agent to generate a checklist
-            checklist_generator_agent_id = str(uuid.uuid4())
-            checklist_generator_agent_name = "Agent for checklist generator - " + self.name
-            agent_manager_mutation_result = create_agent(
-                agent_manager_id, checklist_generator_agent_id, checklist_generator_agent_name)
+        # Create a checklist to DB
+        insert_checklist = self.process_generated_checklist(
+            agent_manager_id, generated_checklist, self.project_id)
+        checklist_mutation_result = save_checklist(insert_checklist)
 
-            # Store the checklist result
-            checklist_generator = ChecklistGenerator(
-                checklist_generator_agent_id)
-            generated_checklist = checklist_generator.generate_checklist_using_subsequent_chain(
-                generated_prompt)
+        # Create a agent to generate a metadata
+        # Generate metadata
+        # Store the metadata result
 
-            # Create a checklist to DB
-            insert_checklist = self.process_generated_checklist(
-                agent_manager_id, generated_checklist, self.project_id)
-            checklist_mutation_result = save_checklist(insert_checklist)
-
-            # Create a agent to generate a metadata
-            # Generate metadata
-            # Store the metadata result
-
-            # Store the metadata with checklist
-            return checklist_mutation_result
-        except ValueError as e:
-            raise e
+        # Store the metadata with checklist
+        return checklist_mutation_result
