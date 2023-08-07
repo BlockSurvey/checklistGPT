@@ -135,7 +135,11 @@ def generate_checklist_using_ai_api():
 @app.route('/generate-checklist-metadata', methods=['POST'])
 def generate_checklist_metadata():
     payload = request.get_json()
+    checklist = payload.get("checklist", None)
     tasks = payload.get("tasks", None)
+
+    if (checklist is None or checklist == ""):
+        return jsonify({'error': {'message': 'Checklist cannot be null'}}), 400
 
     if (tasks is None or len(tasks) == 0):
         return jsonify({'error': {'message': 'Tasks cannot be null'}}), 400
@@ -143,6 +147,7 @@ def generate_checklist_metadata():
     try:
         checklist_metadata_generator = ChecklistMetadataController()
         result = checklist_metadata_generator.generate_checklist_metadata(
+            checklist,
             tasks)
 
         return jsonify({"data": {

@@ -1,11 +1,13 @@
-Build Command	
+Build Command
 pip install -r requirements.txt
 
-Start Command	
-gunicorn app:app -w 1 --threads 12
-gunicorn app:app -w 4 --timeout 1200
+Start Command
 
-gunicorn --worker-class=gevent --worker-connections=1000 --workers=4 app:app --timeout 1200
+<!-- Using one worker with 12 threads -->
+
+gunicorn app:app -w 1 --threads 12 --timeout 1200
+
+<!-- Works -->
 
 gunicorn --config geventlet-config.py --worker-class=gevent --worker-connections=1000 --workers=4 app:app --timeout 1200
 
