@@ -9,7 +9,9 @@ from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
 from controllers.checklist_controller_new import ChecklistControllerNew
 from controllers.checklist_metadata_controller import ChecklistMetadataController
+from controllers.checklist_from_document import ChecklistFromDocument
 from utils.agent_utils import get_agent_by_id
+from utils.utils import is_valid_url
 
 app = Flask(__name__)
 CORS(app)
@@ -152,6 +154,82 @@ def generate_checklist_metadata():
 
         return jsonify({"data": {
             "metadata": result
+        }})
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+
+
+@app.route('/generate-checklist-from-document', methods=['POST'])
+def generate_checklist_from_document():
+    if 'file' not in request.files:
+        return jsonify({'error': {'message': 'Missing parameters'}}), 400
+
+    file = request.files['file']
+
+    # Validation
+    if file.filename == '':
+        return jsonify({"error": {"message": "Invalid filename"}}), 400
+
+    ALLOWED_CONTENT_TYPES = {'application/pdf', 'text/plain'}
+    if (file.content_type not in ALLOWED_CONTENT_TYPES):
+        return jsonify({"error": {"message": "File type not allowed."}}), 400
+
+    try:
+        checklist_from_document = ChecklistFromDocument()
+        result = checklist_from_document.generate_checklist_from_document(
+            file, file.content_type)
+
+        return jsonify({"data": {
+            "checklist": result
+        }})
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+
+
+@app.route('/generate-checklist-from-url', methods=['POST'])
+def generate_checklist_from_url():
+    payload = request.get_json()
+    url = payload.get("url", None)
+
+    if (url is None or url == ""):
+        return jsonify({'error': {'message': 'Missing parameters'}}), 400
+
+    if (is_valid_url(url) == False):
+        return jsonify({'error': {'message': 'Invalid URL'}}), 400
+
+    try:
+        checklist_from_document = ChecklistFromDocument()
+        result = checklist_from_document.generate_checklist_from_url(url)
+
+        return jsonify({"data": {
+            "checklist": result
+        }})
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+
+
+@app.route('/generate-checklist-from-text', methods=['POST'])
+def generate_checklist_from_text():
+    payload = request.get_json()
+    text = payload.get("text", None)
+
+    if (text is None or text == ""):
+        return jsonify({'error': {'message': 'Missing parameters'}}), 400
+
+    words = text.split()
+
+    if (len(words) < 100):
+        return jsonify({'error': {'message': 'Text should contain minimum of 100 words'}}), 400
+
+    try:
+        checklist_from_document = ChecklistFromDocument()
+        result = checklist_from_document.generate_checklist_from_text(text)
+
+        return jsonify({"data": {
+            "checklist": result
         }})
     except ValueError as error:
         print("An error occurred:", error)

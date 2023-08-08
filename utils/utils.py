@@ -1,5 +1,5 @@
 import json
-
+import validators
 from flask import g
 
 
@@ -23,3 +23,10 @@ def get_user_id():
         userId = g.jwt_session.get('sub')
 
     return userId
+
+
+def is_valid_url(url: str):
+    if not validators.url(url):
+        return False
+
+    return True

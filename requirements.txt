@@ -11,3 +11,9 @@ regex
 uuid
 json5==0.9.14
 gevent
+PyPDF2
+pypdf
+scikit-learn
+numpy
+validators
+beautifulsoup4
