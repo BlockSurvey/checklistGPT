@@ -258,6 +258,12 @@ class ChecklistFromDocument:
         # Create a checklist to DB
         insert_checklist = process_generated_checklist(
             "", generated_checklist, self.project_id)
-        checklist_mutation_result = save_checklist(insert_checklist)
+        save_checklist(insert_checklist)
 
-        return checklist_mutation_result
+        checklist_id = ""
+        if insert_checklist and len(insert_checklist) > 0:
+            checklist_id = insert_checklist[0].get('id')
+
+        return {
+            "checklistId": checklist_id
+        }
