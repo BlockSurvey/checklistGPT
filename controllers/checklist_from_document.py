@@ -10,15 +10,19 @@ from langchain.prompts import PromptTemplate
 from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
 from utils.langchain.document_loaders.document_utils import generate_embeddings_from_text
+from utils.langchain.document_loaders.document_utils import generate_md5_for_uploaded_file, generate_md5_for_text
 import concurrent.futures
+from utils.embeddings_utils import save_embeddings, fetch_embeddings_from_database
 
 import numpy as np
 from sklearn.cluster import KMeans
 
 
 class ChecklistFromDocument:
+    org_id = None
 
-    def __init__(self) -> None:
+    def __init__(self, org_id) -> None:
+        self.org_id = org_id
         pass
 
     def form_cluster(self, num_clusters, embeddings):
@@ -134,13 +138,32 @@ class ChecklistFromDocument:
 
         return result
 
-    def generate_checklist(self, text):
+    def generate_checklist(self, text, name, md5_hash):
         if text is None or text == "":
             raise ValueError("Missing required parameters")
 
-        result = generate_embeddings_from_text(text)
-        embeddings = result.get("embeddings")
-        splitted_docs = result.get("splitted_docs")
+        embeddings = None
+        splitted_docs = None
+
+        # Fetch embeddings from database if it exists
+        fetched_embeddings = fetch_embeddings_from_database(
+            md5_hash, self.org_id)
+        if (fetched_embeddings is None):
+            result = generate_embeddings_from_text(text)
+            embeddings = result.get("embeddings")
+            splitted_docs = result.get("splitted_docs")
+
+            # Save embeddings to database
+            save_embeddings(splitted_docs, embeddings,
+                            name, md5_hash, self.org_id)
+        else:
+            print("found")
+            embeddings = fetched_embeddings.get("embeddings", None)
+            splitted_docs = fetched_embeddings.get("splitted_docs", None)
+
+        # Validation
+        if (embeddings is None or splitted_docs is None or len(embeddings) != len(splitted_docs)):
+            raise ValueError("Embeddings or splitted_docs not found")
 
         # Calculate the number of clusters
         num_clusters = len(splitted_docs)
@@ -183,15 +206,18 @@ class ChecklistFromDocument:
         elif uploaded_file_content_type == "text/plain":
             return TxtLoader(uploaded_file)
 
-    def generate_checklist_from_document(self, uploaded_file, uploaded_file_content_type):
-        if uploaded_file is None or uploaded_file_content_type is None:
+    def generate_checklist_from_document(self, uploaded_file, uploaded_file_content_type, uploaded_file_name):
+        if uploaded_file is None or uploaded_file_content_type is None or uploaded_file_name is None:
             raise ValueError("Missing required parameters")
+
+        md5_hash = generate_md5_for_uploaded_file(uploaded_file)
 
         document_loader = self.get_document_loader(
             uploaded_file, uploaded_file_content_type)
         text = document_loader.get_text()
 
-        json_result = self.generate_checklist(text)
+        json_result = self.generate_checklist(
+            text, uploaded_file_name, md5_hash)
 
         return json_result
 
@@ -199,17 +225,21 @@ class ChecklistFromDocument:
         if url is None or url == "":
             raise ValueError("Missing required parameters")
 
+        md5_hash = generate_md5_for_text(url)
+
         html_loader = UrlLoader(url)
         text = html_loader.get_text()
 
-        json_result = self.generate_checklist(text)
+        json_result = self.generate_checklist(text, url, md5_hash)
 
         return json_result
 
-    def generate_checklist_from_text(self, text):
+    def generate_checklist_from_text(self, text, name):
         if text is None or text == "":
             raise ValueError("Missing required parameters")
 
-        json_result = self.generate_checklist(text)
+        md5_hash = generate_md5_for_text(text)
+
+        json_result = self.generate_checklist(text, name, md5_hash)
 
         return json_result

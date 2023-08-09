@@ -1,7 +1,6 @@
 from typing import Dict, List
 from gql.checklist import CREATE_MULTIPLE_CHECKLIST_MUTATION
 from services.hasura_service import HasuraService
-from utils.utils import get_user_id
 
 
 def save_checklist(insert_checklist: List[Dict]):
