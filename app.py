@@ -185,7 +185,7 @@ def generate_checklist_from_document():
             file, file.content_type, file.filename)
 
         return jsonify({"data": {
-            "checklist": result
+            "checklistId": result
         }})
     except ValueError as error:
         print("An error occurred:", error)
@@ -210,7 +210,7 @@ def generate_checklist_from_url():
         result = checklist_from_document.generate_checklist_from_url(url)
 
         return jsonify({"data": {
-            "checklist": result
+            "checklistId": result
         }})
     except ValueError as error:
         print("An error occurred:", error)
@@ -240,7 +240,7 @@ def generate_checklist_from_text():
             text, " ".join(words[0:10]))
 
         return jsonify({"data": {
-            "checklist": result
+            "checklistId": result
         }})
     except ValueError as error:
         print("An error occurred:", error)

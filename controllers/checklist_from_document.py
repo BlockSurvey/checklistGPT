@@ -209,6 +209,18 @@ class ChecklistFromDocument:
         elif uploaded_file_content_type == "text/plain":
             return TxtLoader(uploaded_file)
 
+    def save_checklist(self, generated_checklist):
+        # Create a checklist to DB
+        insert_checklist = process_generated_checklist(
+            "", generated_checklist, self.project_id)
+        save_checklist(insert_checklist)
+
+        checklist_id = ""
+        if insert_checklist and len(insert_checklist) > 0:
+            checklist_id = insert_checklist[0].get('id')
+
+        return checklist_id
+
     def generate_checklist_from_document(self, uploaded_file, uploaded_file_content_type, uploaded_file_name):
         if uploaded_file is None or uploaded_file_content_type is None or uploaded_file_name is None:
             raise ValueError("Missing required parameters")
@@ -222,12 +234,10 @@ class ChecklistFromDocument:
         generated_checklist = self.generate_checklist(
             text, uploaded_file_name, md5_hash)
 
-        # Create a checklist to DB
-        insert_checklist = process_generated_checklist(
-            "", generated_checklist, self.project_id)
-        checklist_mutation_result = save_checklist(insert_checklist)
+        # Save checklist
+        checklist_id = self.save_checklist(generated_checklist)
 
-        return checklist_mutation_result
+        return checklist_id
 
     def generate_checklist_from_url(self, url):
         if url is None or url == "":
@@ -240,12 +250,10 @@ class ChecklistFromDocument:
 
         generated_checklist = self.generate_checklist(text, url, md5_hash)
 
-        # Create a checklist to DB
-        insert_checklist = process_generated_checklist(
-            "", generated_checklist, self.project_id)
-        checklist_mutation_result = save_checklist(insert_checklist)
+        # Save checklist
+        checklist_id = self.save_checklist(generated_checklist)
 
-        return checklist_mutation_result
+        return checklist_id
 
     def generate_checklist_from_text(self, text, name):
         if text is None or text == "":
@@ -255,15 +263,7 @@ class ChecklistFromDocument:
 
         generated_checklist = self.generate_checklist(text, name, md5_hash)
 
-        # Create a checklist to DB
-        insert_checklist = process_generated_checklist(
-            "", generated_checklist, self.project_id)
-        save_checklist(insert_checklist)
+        # Save checklist
+        checklist_id = self.save_checklist(generated_checklist)
 
-        checklist_id = ""
-        if insert_checklist and len(insert_checklist) > 0:
-            checklist_id = insert_checklist[0].get('id')
-
-        return {
-            "checklistId": checklist_id
-        }
+        return checklist_id
