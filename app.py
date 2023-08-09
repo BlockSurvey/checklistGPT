@@ -168,10 +168,11 @@ def generate_checklist_from_document():
     file = request.files['file']
 
     # Fetch payload data (form data)
-    org_id = request.form.get('org_id', default=None)
-    
+    org_id = request.form.get('orgId', default=None)
+    project_id = request.form.get('projectId', default=None)
+
     # Validation
-    if ((org_id is None or org_id == "") or (file.filename == '')):
+    if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (file.filename == '')):
         return jsonify({"error": {"message": "Missing parameters"}}), 400
 
     ALLOWED_CONTENT_TYPES = {'application/pdf', 'text/plain'}
@@ -179,7 +180,7 @@ def generate_checklist_from_document():
         return jsonify({"error": {"message": "File type not allowed."}}), 400
 
     try:
-        checklist_from_document = ChecklistFromDocument(org_id)
+        checklist_from_document = ChecklistFromDocument(org_id, project_id)
         result = checklist_from_document.generate_checklist_from_document(
             file, file.content_type, file.filename)
 
@@ -195,16 +196,17 @@ def generate_checklist_from_document():
 def generate_checklist_from_url():
     payload = request.get_json()
     org_id = payload.get("orgId", None)
+    project_id = payload.get("projectId", None)
     url = payload.get("url", None)
 
-    if ((org_id is None or org_id == "") or (url is None or url == "")):
+    if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (url is None or url == "")):
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
 
     if (is_valid_url(url) == False):
         return jsonify({'error': {'message': 'Invalid URL'}}), 400
 
     try:
-        checklist_from_document = ChecklistFromDocument(org_id)
+        checklist_from_document = ChecklistFromDocument(org_id, project_id)
         result = checklist_from_document.generate_checklist_from_url(url)
 
         return jsonify({"data": {
@@ -219,9 +221,10 @@ def generate_checklist_from_url():
 def generate_checklist_from_text():
     payload = request.get_json()
     org_id = payload.get("orgId", None)
+    project_id = payload.get("projectId", None)
     text = payload.get("text", None)
 
-    if ((org_id is None or org_id == "") or (text is None or text == "")):
+    if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (text is None or text == "")):
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
 
     words = text.split()
@@ -232,7 +235,7 @@ def generate_checklist_from_text():
         return jsonify({'error': {'message': 'Text should contain maximum of 5000 words'}}), 400
 
     try:
-        checklist_from_document = ChecklistFromDocument(org_id)
+        checklist_from_document = ChecklistFromDocument(org_id, project_id)
         result = checklist_from_document.generate_checklist_from_text(
             text, " ".join(words[0:10]))
 

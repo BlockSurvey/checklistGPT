@@ -13,6 +13,7 @@ from utils.langchain.document_loaders.document_utils import generate_embeddings_
 from utils.langchain.document_loaders.document_utils import generate_md5_for_uploaded_file, generate_md5_for_text
 import concurrent.futures
 from utils.embeddings_utils import save_embeddings, fetch_embeddings_from_database
+from utils.checklist_utils import save_checklist, process_generated_checklist
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -20,9 +21,11 @@ from sklearn.cluster import KMeans
 
 class ChecklistFromDocument:
     org_id = None
+    project_id = None
 
-    def __init__(self, org_id) -> None:
+    def __init__(self, org_id, project_id) -> None:
         self.org_id = org_id
+        self.project_id = project_id
         pass
 
     def form_cluster(self, num_clusters, embeddings):
@@ -216,10 +219,15 @@ class ChecklistFromDocument:
             uploaded_file, uploaded_file_content_type)
         text = document_loader.get_text()
 
-        json_result = self.generate_checklist(
+        generated_checklist = self.generate_checklist(
             text, uploaded_file_name, md5_hash)
 
-        return json_result
+        # Create a checklist to DB
+        insert_checklist = process_generated_checklist(
+            "", generated_checklist, self.project_id)
+        checklist_mutation_result = save_checklist(insert_checklist)
+
+        return checklist_mutation_result
 
     def generate_checklist_from_url(self, url):
         if url is None or url == "":
@@ -230,9 +238,14 @@ class ChecklistFromDocument:
         html_loader = UrlLoader(url)
         text = html_loader.get_text()
 
-        json_result = self.generate_checklist(text, url, md5_hash)
+        generated_checklist = self.generate_checklist(text, url, md5_hash)
 
-        return json_result
+        # Create a checklist to DB
+        insert_checklist = process_generated_checklist(
+            "", generated_checklist, self.project_id)
+        checklist_mutation_result = save_checklist(insert_checklist)
+
+        return checklist_mutation_result
 
     def generate_checklist_from_text(self, text, name):
         if text is None or text == "":
@@ -240,6 +253,11 @@ class ChecklistFromDocument:
 
         md5_hash = generate_md5_for_text(text)
 
-        json_result = self.generate_checklist(text, name, md5_hash)
+        generated_checklist = self.generate_checklist(text, name, md5_hash)
 
-        return json_result
+        # Create a checklist to DB
+        insert_checklist = process_generated_checklist(
+            "", generated_checklist, self.project_id)
+        checklist_mutation_result = save_checklist(insert_checklist)
+
+        return checklist_mutation_result
