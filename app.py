@@ -259,8 +259,8 @@ def generate_checklist_using_prompt():
 
     words = prompt.split()
 
-    if (len(words) < 5):
-        return jsonify({'error': {'message': 'Prompt should contain minimum of 5 words'}}), 400
+    if (len(words) < 3):
+        return jsonify({'error': {'message': 'Prompt should contain minimum of 3 words'}}), 400
     elif len(words) > 500:
         return jsonify({'error': {'message': 'Text should contain maximum of 500 words'}}), 400
 
