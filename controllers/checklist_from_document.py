@@ -3,6 +3,8 @@ from os import close
 from utils.langchain.document_loaders.pdf_loader import PdfLoader
 from utils.langchain.document_loaders.url_loader import UrlLoader
 from utils.langchain.document_loaders.txt_loader import TxtLoader
+from utils.langchain.document_loaders.csv_loader import CsvLoader
+from utils.langchain.document_loaders.excel_loader import ExcelLoader
 
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
@@ -206,6 +208,10 @@ class ChecklistFromDocument:
             return PdfLoader(uploaded_file)
         elif uploaded_file_content_type == "text/plain":
             return TxtLoader(uploaded_file)
+        elif uploaded_file_content_type == "text/csv":
+            return CsvLoader(uploaded_file)
+        elif uploaded_file_content_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" or uploaded_file_content_type == "application/vnd.ms-excel":
+            return ExcelLoader(uploaded_file)
 
     def save_checklist(self, generated_checklist):
         # Create a checklist to DB

@@ -18,3 +18,5 @@ numpy
 validators
 beautifulsoup4
 tiktoken
+pandas
+openpyxl
