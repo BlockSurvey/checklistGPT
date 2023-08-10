@@ -1,7 +1,7 @@
 Flask
 flask_cors
 Gunicorn==21.1.0
-langchain==0.0.235
+langchain==0.0.261
 google-api-python-client
 openai
 python-dotenv
