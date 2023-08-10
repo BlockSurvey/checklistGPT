@@ -17,4 +17,3 @@ scikit-learn
 numpy
 validators
 beautifulsoup4
-tiktoken
