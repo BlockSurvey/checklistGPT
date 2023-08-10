@@ -247,6 +247,36 @@ def generate_checklist_from_text():
         return jsonify({'error': {'message': str(error)}}), 500
 
 
+@app.route('/generate-checklist-using-prompt', methods=['POST'])
+def generate_checklist_using_prompt():
+    payload = request.get_json()
+    org_id = payload.get("orgId", None)
+    project_id = payload.get("projectId", None)
+    prompt = payload.get("prompt", None)
+
+    if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (prompt is None or prompt == "")):
+        return jsonify({'error': {'message': 'Missing parameters'}}), 400
+
+    words = prompt.split()
+
+    if (len(words) < 5):
+        return jsonify({'error': {'message': 'Prompt should contain minimum of 5 words'}}), 400
+    elif len(words) > 500:
+        return jsonify({'error': {'message': 'Text should contain maximum of 500 words'}}), 400
+
+    try:
+        checklist_from_document = ChecklistFromDocument(org_id, project_id)
+        result = checklist_from_document.generate_checklist_using_given_prompt(
+            prompt)
+
+        return jsonify({"data": {
+            "checklistId": result
+        }})
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+
+
 @app.route('/')
 def root_path():
     return 'It is working...'

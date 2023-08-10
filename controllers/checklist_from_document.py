@@ -266,3 +266,18 @@ class ChecklistFromDocument:
         checklist_id = self.save_checklist(generated_checklist)
 
         return checklist_id
+
+    def generate_checklist_using_given_prompt(self, prompt):
+        if prompt is None or prompt == "":
+            raise ValueError("Missing required parameters")
+
+        checklist_result = self.generate_checklist_using_prompt(
+            prompt)
+
+        # Parse the output and get JSON
+        generated_checklist = parse_agent_result_and_get_json(checklist_result)
+
+        # Save checklist
+        checklist_id = self.save_checklist(generated_checklist)
+
+        return checklist_id
