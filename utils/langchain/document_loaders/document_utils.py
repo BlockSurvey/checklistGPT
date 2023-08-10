@@ -6,7 +6,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 def generate_embeddings_from_text(text):
     # Text splitter
     text_splitter = RecursiveCharacterTextSplitter(
-        separators=["\n\n", "\n", "\t"], chunk_size=10000, chunk_overlap=3000)
+        separators=["\n\n", "\n", " ", "", "\t"], chunk_size=10000, chunk_overlap=500)
     splitted_docs = text_splitter.create_documents([text])
 
     embeddings_model = OpenAIEmbeddings()

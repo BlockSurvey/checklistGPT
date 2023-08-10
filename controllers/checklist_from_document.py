@@ -160,7 +160,6 @@ class ChecklistFromDocument:
             save_embeddings(splitted_docs, embeddings,
                             name, md5_hash, self.org_id)
         else:
-            print("found")
             embeddings = fetched_embeddings.get("embeddings", None)
             splitted_docs = fetched_embeddings.get("splitted_docs", None)
 
