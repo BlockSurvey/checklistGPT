@@ -261,8 +261,8 @@ def generate_checklist_using_prompt():
 
     if (len(words) < 3):
         return jsonify({'error': {'message': 'Prompt should contain minimum of 3 words'}}), 400
-    elif len(words) > 500:
-        return jsonify({'error': {'message': 'Text should contain maximum of 500 words'}}), 400
+    elif len(words) > 100:
+        return jsonify({'error': {'message': 'Text should contain maximum of 100 words'}}), 400
 
     try:
         checklist_from_document = ChecklistFromDocument(org_id, project_id)

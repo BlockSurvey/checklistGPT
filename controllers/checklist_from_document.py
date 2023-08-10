@@ -99,7 +99,6 @@ class ChecklistFromDocument:
         return result
 
     def generate_checklist_using_prompt(self, prompt):
-
         # Chain to generate a checklist
         llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
         dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear checklist using below Prompt,
