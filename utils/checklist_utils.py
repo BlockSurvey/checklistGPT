@@ -30,14 +30,21 @@ def process_generated_checklist(agent_manager_id: str, generated_checklist: Any,
             "created_by": get_user_id(),
             "created_at": "now()"
         }
-        
+
         if agent_manager_id:
             root_node['agent_manager_id'] = agent_manager_id
 
         insert_checklist.append(root_node)
 
-        insert_child_checklist(root_node, generated_checklist.get(
-            'tasks') or generated_checklist.get('subtasks'), insert_checklist, root_node['id'], project_id)
+        tasks = generated_checklist.get(
+            'tasks') or generated_checklist.get('subtasks')
+
+        if isinstance(tasks[0], str):
+            tasks = [{'title': task_title}
+                     for task_title in tasks]
+
+        insert_child_checklist(
+            root_node, tasks, insert_checklist, root_node['id'], project_id)
 
         return insert_checklist
 

@@ -253,6 +253,7 @@ def generate_checklist_using_prompt():
     org_id = payload.get("orgId", None)
     project_id = payload.get("projectId", None)
     prompt = payload.get("prompt", None)
+    is_detailed_checklist = payload.get("isDetailedChecklist", None)
 
     if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (prompt is None or prompt == "")):
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
@@ -267,7 +268,7 @@ def generate_checklist_using_prompt():
     try:
         checklist_from_document = ChecklistFromDocument(org_id, project_id)
         result = checklist_from_document.generate_checklist_using_given_prompt(
-            prompt)
+            prompt, is_detailed_checklist)
 
         return jsonify({"data": {
             "checklistId": result
