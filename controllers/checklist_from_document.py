@@ -16,6 +16,8 @@ from utils.langchain.document_loaders.document_utils import generate_md5_for_upl
 import concurrent.futures
 from utils.embeddings_utils import save_embeddings, fetch_embeddings_from_database
 from utils.checklist_utils import save_checklist, process_generated_checklist
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings.openai import OpenAIEmbeddings
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -29,6 +31,22 @@ class ChecklistFromDocument:
         self.org_id = org_id
         self.project_id = project_id
         pass
+
+    def generate_embeddings_from_text(self, text):
+        # Text splitter
+        text_splitter = RecursiveCharacterTextSplitter(
+            separators=["\n\n", "\n", " ", "", "\t"], chunk_size=10000, chunk_overlap=500)
+        splitted_docs = text_splitter.create_documents([text])
+
+        embeddings_model = OpenAIEmbeddings()
+
+        embeddings = embeddings_model.embed_documents(
+            [doc.page_content for doc in splitted_docs])
+
+        return {
+            "splitted_docs": splitted_docs,
+            "embeddings": embeddings
+        }
 
     def form_cluster(self, num_clusters, embeddings):
         kmeans = KMeans(n_clusters=num_clusters,
@@ -153,7 +171,7 @@ class ChecklistFromDocument:
         fetched_embeddings = fetch_embeddings_from_database(
             md5_hash, self.org_id)
         if (fetched_embeddings is None):
-            result = generate_embeddings_from_text(text)
+            result = self.generate_embeddings_from_text(text)
             embeddings = result.get("embeddings")
             splitted_docs = result.get("splitted_docs")
 
