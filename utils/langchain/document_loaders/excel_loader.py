@@ -13,10 +13,8 @@ class ExcelLoader(DocumentLoaderInterface):
         data_frame = pd.read_excel(self.uploaded_file, engine='openpyxl')
 
         # Convert each row of the DataFrame to a readable string
-        content = ". ".join(
+        return ". ".join(
             [". ".join(row.dropna().astype(str).tolist()) for _, row in data_frame.iterrows()])
-
-        return content
 
     def get_text(self) -> str:
         return self.get_file_content()

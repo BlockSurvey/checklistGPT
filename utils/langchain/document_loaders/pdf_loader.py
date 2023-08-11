@@ -15,15 +15,8 @@ class PdfLoader(DocumentLoaderInterface):
 
     def extract_text_from_pdf(self):
         pdf_reader = PdfReader(self.uploaded_file)
-        number_of_pages = len(pdf_reader.pages)
-        text = ""
-
-        # Loop through all the pages in the PDF
-        for page_num in range(number_of_pages):
-            page = pdf_reader.pages[page_num]
-            text += page.extract_text()
-
-        return text
+        texts = [page.extract_text() for page in pdf_reader.pages]
+        return ''.join(texts)
 
     def get_text(self):
         extracted_text = self.extract_text_from_pdf()
