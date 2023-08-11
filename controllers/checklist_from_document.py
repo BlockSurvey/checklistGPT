@@ -89,9 +89,24 @@ class ChecklistFromDocument:
 
             return result
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = list(executor.map(summarize_doc, selected_docs))
-            return results
+        # with concurrent.futures.ThreadPoolExecutor() as executor:
+        #     results = list(executor.map(summarize_doc, selected_docs))
+        #     return results
+
+        executor = concurrent.futures.ThreadPoolExecutor()
+
+        # Submitting tasks to the executor and gathering future objects
+        futures = [executor.submit(summarize_doc, selected_doc)
+                   for selected_doc in selected_docs]
+
+        # Waiting for all tasks to complete
+        results = [future.result()
+                   for future in concurrent.futures.as_completed(futures)]
+
+        # Explicitly shutting down the executor
+        executor.shutdown()
+
+        return results
 
     def generate_prompt(self, summarized_docs):
         joined_summarized_docs = "\n".join(summarized_docs)
