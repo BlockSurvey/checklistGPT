@@ -16,7 +16,12 @@ pypdf
 scikit-learn
 numpy
 validators
+
+# Web page parser
 beautifulsoup4
+lxml 
+html5lib
+
 tiktoken
 pandas
 openpyxl

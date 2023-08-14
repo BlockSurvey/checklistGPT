@@ -17,7 +17,7 @@ class UrlLoader(DocumentLoaderInterface):
         # Check if the request was successful
         if response.status_code == 200:
             # Parse the content using BeautifulSoup
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(response.content, 'lxml')
 
             # Extract only text content
             text_content = soup.get_text(separator=' ', strip=True)
