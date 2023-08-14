@@ -1,5 +1,6 @@
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
 from bs4 import BeautifulSoup
+import gc
 import requests
 
 
@@ -20,7 +21,12 @@ class UrlLoader(DocumentLoaderInterface):
 
             # Extract only text content
             text_content = soup.get_text(separator=' ', strip=True)
+
+            # Clean up the soup object to free memory
             soup.decompose()
+            del soup
+            gc.collect()
+
             return text_content
         else:
             raise ValueError(
