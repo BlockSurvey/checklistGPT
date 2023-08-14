@@ -20,6 +20,10 @@ validators
 # Web page parser
 lxml 
 
+# OCR - Image to text parser
+pytesseract
+Pillow
+
 tiktoken
 pandas
 openpyxl
