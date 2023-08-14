@@ -17,7 +17,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-# @app.before_request
+@app.before_request
 def token_required():
     if request.method != 'OPTIONS':
         # Exclude some routes from token verification, for example the login route
