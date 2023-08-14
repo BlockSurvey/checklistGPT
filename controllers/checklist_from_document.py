@@ -1,5 +1,7 @@
 import html
 from os import close
+import gc
+
 from utils.langchain.document_loaders.pdf_loader import PdfLoader
 from utils.langchain.document_loaders.url_loader import UrlLoader
 from utils.langchain.document_loaders.txt_loader import TxtLoader
@@ -279,6 +281,9 @@ class ChecklistFromDocument:
         # Save checklist
         checklist_id = self.save_checklist(generated_checklist)
 
+        # Do garbage collection to avoid memory leak
+        gc.collect()
+
         return checklist_id
 
     def generate_checklist_from_url(self, url):
@@ -295,6 +300,9 @@ class ChecklistFromDocument:
         # Save checklist
         checklist_id = self.save_checklist(generated_checklist)
 
+        # Do garbage collection to avoid memory leak
+        gc.collect()
+
         return checklist_id
 
     def generate_checklist_from_text(self, text, name):
@@ -307,6 +315,9 @@ class ChecklistFromDocument:
 
         # Save checklist
         checklist_id = self.save_checklist(generated_checklist)
+
+        # Do garbage collection to avoid memory leak
+        gc.collect()
 
         return checklist_id
 
@@ -342,6 +353,9 @@ class ChecklistFromDocument:
 
         result = checklist_chain.run(
             {"final_prompt": prompt})
+
+        # Do garbage collection to avoid memory leak
+        gc.collect()
 
         return result
 
