@@ -28,7 +28,6 @@ from sklearn.cluster import KMeans
 class ChecklistFromDocument:
     org_id = None
     project_id = None
-    llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
 
     def __init__(self, org_id, project_id) -> None:
         self.org_id = org_id
@@ -73,8 +72,7 @@ class ChecklistFromDocument:
 
         def summarize_doc(doc):
             # Chain to generate a checklist
-            # llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
-            llm = self.llm
+            llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
             dynamic_template = """You are an expert summarizer for given any text. It is your job to generate a summary for the given below text. Text will be enclosed in triple backticks.
             
             Text: ```{text}```
@@ -119,8 +117,7 @@ class ChecklistFromDocument:
         joined_summarized_docs = "\n".join(summarized_docs)
 
         # Chain to generate a checklist
-        # llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
-        llm = self.llm
+        llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
         dynamic_template = """You are an expert prompt generator for checklist creation. It is your job to generate a Prompt from given summarized text,
         
         Summarized Text: ```{text}```
@@ -143,8 +140,7 @@ class ChecklistFromDocument:
 
     def generate_checklist_using_prompt(self, prompt):
         # Chain to generate a checklist
-        # llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
-        llm = self.llm
+        llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
         dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear checklist using below Prompt,
         
         Prompt: "{final_prompt}"
@@ -228,6 +224,9 @@ class ChecklistFromDocument:
         kmeans = self.form_cluster(num_clusters, embeddings)
         closest_indices = self.get_closest_points_from_kmeans(
             num_clusters, embeddings, kmeans)
+        
+        # Clear object
+        del kmeans
 
         selected_indices = sorted(closest_indices)
         selected_docs = [splitted_docs[selected_index]
@@ -327,8 +326,7 @@ class ChecklistFromDocument:
 
     def generate_minimal_checklist_using_prompt(self, prompt):
         # Chain to generate a checklist
-        # llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
-        llm = self.llm
+        llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
         dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear checklist using below Prompt,
         
         Prompt: "{final_prompt}"

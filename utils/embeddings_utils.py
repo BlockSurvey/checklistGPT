@@ -26,10 +26,12 @@ def fetch_embeddings_from_database(md5_hash, orgId):
         result_docs.append(Document(page_content=embedding["text"]))
         result_embeddings.append(json.loads(embedding["embedding"]))
 
-    return {
+    result = {
         "splitted_docs": result_docs,
         "embeddings": result_embeddings
     }
+
+    return result
 
 
 def query_embeddings_document_by_md5_hash(md5_hash, orgId):
