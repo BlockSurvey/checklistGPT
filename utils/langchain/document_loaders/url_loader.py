@@ -18,11 +18,9 @@ class UrlLoader(DocumentLoaderInterface):
             # Parse the content using BeautifulSoup
             soup = BeautifulSoup(response.content, 'html.parser')
 
-            # Parse the content using BeautifulSoup
-            soup = BeautifulSoup(response.content, 'html.parser')
-
             # Extract only text content
             text_content = soup.get_text(separator=' ', strip=True)
+            soup.decompose()
             return text_content
         else:
             raise ValueError(
