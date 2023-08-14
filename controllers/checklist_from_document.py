@@ -12,7 +12,6 @@ from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
-from utils.langchain.document_loaders.document_utils import generate_embeddings_from_text
 from utils.langchain.document_loaders.document_utils import generate_md5_for_uploaded_file, generate_md5_for_text
 import concurrent.futures
 from utils.embeddings_utils import save_embeddings, fetch_embeddings_from_database
@@ -43,6 +42,9 @@ class ChecklistFromDocument:
 
         embeddings = embeddings_model.embed_documents(
             [doc.page_content for doc in splitted_docs])
+
+        # Delete the object
+        del embeddings_model
 
         return {
             "splitted_docs": splitted_docs,
