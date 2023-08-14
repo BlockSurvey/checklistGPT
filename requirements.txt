@@ -11,10 +11,15 @@ regex
 uuid
 json5==0.9.14
 gevent
+
+# PDF file reader
 PyPDF2
-pypdf
+
+# Vector - Cluster forming libraries
 scikit-learn
 numpy
+
+# URL validator
 validators
 
 # Web page parser
@@ -24,6 +29,9 @@ lxml
 pytesseract
 Pillow
 
+# Used by OpenAI embeddings
 tiktoken
+
+# CSV and excel file reader
 pandas
 openpyxl
