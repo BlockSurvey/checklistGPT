@@ -2,6 +2,7 @@ from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderI
 import requests
 from lxml import html
 import re
+import gc
 
 
 class UrlLoader(DocumentLoaderInterface):
@@ -16,25 +17,6 @@ class UrlLoader(DocumentLoaderInterface):
 
         # Check if the request was successful
         if response.status_code == 200:
-            # # Parse the content using BeautifulSoup
-            # soup = BeautifulSoup(response.content, 'lxml')
-
-            # # Extract only text content
-            # text_content = soup.get_text(separator=' ', strip=True)
-
-            # # Clean up the soup object to free memory
-            # soup.decompose()
-            # del soup
-            # gc.collect()
-
-            # return text_content
-
-            # # Parse the content using lxml
-            # tree = html.fromstring(response.content)
-
-            # # Extract the entire text content of the page
-            # return tree.text_content()
-            
             # Parse the content using lxml
             tree = html.fromstring(response.content)
 
@@ -44,6 +26,10 @@ class UrlLoader(DocumentLoaderInterface):
 
             # Extract the remaining text content of the page
             raw_text = tree.text_content().strip()
+
+            # Clean up object and memory
+            del tree
+            gc.collect()
 
             # Replace sequences of whitespace characters with a single space
             cleaned_text = re.sub(r'\s+', ' ', raw_text)

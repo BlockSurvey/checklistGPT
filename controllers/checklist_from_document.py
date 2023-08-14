@@ -285,14 +285,12 @@ class ChecklistFromDocument:
         html_loader = UrlLoader(url)
         text = html_loader.get_text()
 
-        return text
+        generated_checklist = self.generate_checklist(text, url, md5_hash)
 
-        # generated_checklist = self.generate_checklist(text, url, md5_hash)
+        # Save checklist
+        checklist_id = self.save_checklist(generated_checklist)
 
-        # # Save checklist
-        # checklist_id = self.save_checklist(generated_checklist)
-
-        # return checklist_id
+        return checklist_id
 
     def generate_checklist_from_text(self, text, name):
         if text is None or text == "":
@@ -361,4 +359,3 @@ class ChecklistFromDocument:
         checklist_id = self.save_checklist(generated_checklist)
 
         return checklist_id
-
