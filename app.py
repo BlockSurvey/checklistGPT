@@ -1,4 +1,5 @@
 import json
+import gc
 
 import jwt
 from flask import Flask, g, jsonify, request
@@ -12,6 +13,8 @@ from controllers.checklist_metadata_controller import ChecklistMetadataControlle
 from controllers.checklist_from_document import ChecklistFromDocument
 from utils.agent_utils import get_agent_by_id
 from utils.utils import is_valid_url
+
+# from memory_profiler import profile
 
 app = Flask(__name__)
 CORS(app)
@@ -132,6 +135,8 @@ def generate_checklist_using_ai_api():
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
 
 
 @app.route('/generate-checklist-metadata', methods=['POST'])
@@ -158,6 +163,8 @@ def generate_checklist_metadata():
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
 
 
 @app.route('/generate-checklist-from-document', methods=['POST'])
@@ -192,6 +199,8 @@ def generate_checklist_from_document():
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
 
 
 @app.route('/generate-checklist-from-url', methods=['POST'])
@@ -217,6 +226,8 @@ def generate_checklist_from_url():
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
 
 
 @app.route('/generate-checklist-from-text', methods=['POST'])
@@ -247,6 +258,8 @@ def generate_checklist_from_text():
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
 
 
 @app.route('/generate-checklist-using-prompt', methods=['POST'])
@@ -278,6 +291,8 @@ def generate_checklist_using_prompt():
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
 
 
 @app.route('/')

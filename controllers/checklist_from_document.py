@@ -14,9 +14,9 @@ from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
-from utils.langchain.document_loaders.document_utils import generate_md5_for_uploaded_file, generate_md5_for_text
+from utils.langchain.document_loaders.document_utils import DocumentUtils
 import concurrent.futures
-from utils.embeddings_utils import save_embeddings, fetch_embeddings_from_database
+from utils.embeddings_utils import EmbeddingUtils
 from utils.checklist_utils import save_checklist, process_generated_checklist
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -24,10 +24,14 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 import numpy as np
 from sklearn.cluster import KMeans
 
+# from memory_profiler import profile
+
 
 class ChecklistFromDocument:
     org_id = None
     project_id = None
+    embedding_utils = EmbeddingUtils()
+    document_utils = DocumentUtils()
 
     def __init__(self, org_id, project_id) -> None:
         self.org_id = org_id
@@ -188,7 +192,7 @@ class ChecklistFromDocument:
         splitted_docs = None
 
         # Fetch embeddings from database if it exists
-        fetched_embeddings = fetch_embeddings_from_database(
+        fetched_embeddings = self.embedding_utils.fetch_embeddings_from_database(
             md5_hash, self.org_id)
         if (fetched_embeddings is None):
             result = self.generate_embeddings_from_text(text)
@@ -196,8 +200,8 @@ class ChecklistFromDocument:
             splitted_docs = result.get("splitted_docs")
 
             # Save embeddings to database
-            save_embeddings(splitted_docs, embeddings,
-                            name, md5_hash, self.org_id)
+            self.embedding_utils.save_embeddings(splitted_docs, embeddings,
+                                                 name, md5_hash, self.org_id)
         else:
             embeddings = fetched_embeddings.get("embeddings", None)
             splitted_docs = fetched_embeddings.get("splitted_docs", None)
@@ -224,9 +228,6 @@ class ChecklistFromDocument:
         kmeans = self.form_cluster(num_clusters, embeddings)
         closest_indices = self.get_closest_points_from_kmeans(
             num_clusters, embeddings, kmeans)
-        
-        # Clear object
-        del kmeans
 
         selected_indices = sorted(closest_indices)
         selected_docs = [splitted_docs[selected_index]
@@ -241,6 +242,23 @@ class ChecklistFromDocument:
 
         # Parse the output and get JSON
         json_result = parse_agent_result_and_get_json(checklist_result)
+
+        # Clear object
+        del fetched_embeddings
+        del embeddings
+        del splitted_docs
+
+        del kmeans
+        del closest_indices
+        del selected_indices
+        del selected_docs
+
+        del summarized_docs
+        del generated_prompt
+
+        del checklist_result
+
+        gc.collect()
 
         return json_result
 
@@ -272,7 +290,8 @@ class ChecklistFromDocument:
         if uploaded_file is None or uploaded_file_content_type is None or uploaded_file_name is None:
             raise ValueError("Missing required parameters")
 
-        md5_hash = generate_md5_for_uploaded_file(uploaded_file)
+        md5_hash = self.document_utils.generate_md5_for_uploaded_file(
+            uploaded_file)
 
         document_loader = self.get_document_loader(
             uploaded_file, uploaded_file_content_type)
@@ -284,16 +303,13 @@ class ChecklistFromDocument:
         # Save checklist
         checklist_id = self.save_checklist(generated_checklist)
 
-        # Do garbage collection to avoid memory leak
-        gc.collect()
-
         return checklist_id
 
     def generate_checklist_from_url(self, url):
         if url is None or url == "":
             raise ValueError("Missing required parameters")
 
-        md5_hash = generate_md5_for_text(url)
+        md5_hash = self.document_utils.generate_md5_for_text(url)
 
         html_loader = UrlLoader(url)
         text = html_loader.get_text()
@@ -303,24 +319,18 @@ class ChecklistFromDocument:
         # Save checklist
         checklist_id = self.save_checklist(generated_checklist)
 
-        # Do garbage collection to avoid memory leak
-        gc.collect()
-
         return checklist_id
 
     def generate_checklist_from_text(self, text, name):
         if text is None or text == "":
             raise ValueError("Missing required parameters")
 
-        md5_hash = generate_md5_for_text(text)
+        md5_hash = self.document_utils.generate_md5_for_text(text)
 
         generated_checklist = self.generate_checklist(text, name, md5_hash)
 
         # Save checklist
         checklist_id = self.save_checklist(generated_checklist)
-
-        # Do garbage collection to avoid memory leak
-        gc.collect()
 
         return checklist_id
 
@@ -356,9 +366,6 @@ class ChecklistFromDocument:
 
         result = checklist_chain.run(
             {"final_prompt": prompt})
-
-        # Do garbage collection to avoid memory leak
-        gc.collect()
 
         return result
 

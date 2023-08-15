@@ -1,6 +1,4 @@
-import os
-
-import requests
+import gc
 
 from config import HASURA_API_URL, HASURA_SECRET_KEY
 from services.http_client import HttpClient
@@ -24,13 +22,20 @@ class HasuraService():
         response = self.http_client_object.make_request(
             "POST", HASURA_API_URL, json=data, headers=headers)
 
-        # Check the status code of the response
-        if response.status_code != 200:
-            # Raise an exception if the status code indicates an error
-            response.raise_for_status()
-        else: 
-            result = response.json()
-            if "errors" in result:
-                print(result)
+        try:
+            # Check the status code of the response
+            if response.status_code != 200:
+                # Raise an exception if the status code indicates an error
+                response.raise_for_status()
+            else:
+                result = response.json()
+                if "errors" in result:
+                    print(result)
 
-        return response.json()
+                return result
+        finally:
+            # The finally block ensures that the code within it runs regardless of any raised exceptions.
+            # Use it to explicitly delete or close resources.
+            del response
+
+            gc.collect()
