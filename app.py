@@ -168,6 +168,7 @@ def generate_checklist_metadata():
 
 
 @app.route('/generate-checklist-from-document', methods=['POST'])
+# @profile
 def generate_checklist_from_document():
     if 'file' not in request.files:
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
