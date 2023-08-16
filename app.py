@@ -184,8 +184,7 @@ def generate_checklist_from_document():
         return jsonify({"error": {"message": "Missing parameters"}}), 400
 
     ALLOWED_CONTENT_TYPES = {'application/pdf', 'text/plain', 'text/csv',
-                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel',
-                             'image/png', 'image/jpeg'}
+                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'}
     if (file.content_type not in ALLOWED_CONTENT_TYPES):
         return jsonify({"error": {"message": "File type not allowed."}}), 400
 

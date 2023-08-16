@@ -8,12 +8,14 @@ from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 
 
 class ChecklistMetadataGenerator():
+    # Variables
+    llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
 
     def bulk_generate_metadata(self, checklist, tasks):
 
         def generate_metadata(task):
             # Chain to generate a checklist
-            llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+            llm = self.llm
             dynamic_template = """You are an expert checklist metadata creator. It is your job to create very clear metadata for the given below Task of Checklist,
             
                 Checklist: "{checklist}"
