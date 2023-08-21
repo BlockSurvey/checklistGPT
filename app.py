@@ -13,11 +13,15 @@ from controllers.checklist_metadata_controller import ChecklistMetadataControlle
 from controllers.checklist_from_document import ChecklistFromDocument
 from utils.agent_utils import get_agent_by_id
 from utils.utils import is_valid_url
+from werkzeug.exceptions import RequestEntityTooLarge
 
 # from memory_profiler import profile
 
 app = Flask(__name__)
 CORS(app)
+
+# Set the maximum allowed content length to 20MB
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 
 
 @app.before_request
@@ -293,6 +297,11 @@ def generate_checklist_using_prompt():
         return jsonify({'error': {'message': str(error)}}), 500
     finally:
         gc.collect()
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def file_too_large(e):
+    return jsonify({'error': {'message': str("File is too large")}}), 413
 
 
 @app.route('/')
