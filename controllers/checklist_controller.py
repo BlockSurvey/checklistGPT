@@ -1,40 +1,60 @@
-from agents.checklist_generator import ChecklistGenerator
-from agents.checklist_prompt_generator import ChecklistPromptGenerator
+from langchain.chains import LLMChain
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
+from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 
 
 class ChecklistController():
-    checklist_agent_id: str
-    checklist_prompt_generator: ChecklistPromptGenerator
-    checklist_generator: ChecklistGenerator
+    llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
 
-    def __init__(self, checklist_agent_id: str):
-        self.checklist_agent_id = checklist_agent_id
-        self.checklist_prompt_generator = ChecklistPromptGenerator(
-            self.checklist_agent_id)
-        self.checklist_generator = ChecklistGenerator(self.checklist_agent_id)
+    def __init__(self):
+        pass
 
-    def generate_checklist_prompt(self, checklist_name, checklist_project, checklist_organization):
+    def generate_checklist_using_prompt(self, prompt):
+        # Chain to generate a checklist
+        llm = self.llm
+        dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear checklist using below Prompt,
+        
+        Prompt: "{final_prompt}"
+        
+        In order to do this we will follow the following rules: 
+            - Generate detailed tasks: Use given prompt to generate a more detailed checklist
+            - Number of tasks: Minimum 15 tasks would be great
+            - Do not include sequential number
+
+        {format_instructions}"""
+        checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
+
+        ```json
+        {
+            "title" : "", // checklist title
+            "tasks": [ 
+                // list of tasks
+            ]
+        }
+        ```"""
+
+        prompt_template = PromptTemplate(
+            input_variables=["final_prompt"], template=dynamic_template, partial_variables={"format_instructions": checklist_format_instructions})
+
+        checklist_chain = LLMChain(
+            llm=llm, prompt=prompt_template)
+
+        result = checklist_chain.run(
+            {"final_prompt": prompt})
+
+        return result
+
+    def generate_checklist(self, prompt):
         # Null validation
-        if ((self.checklist_agent_id is None or self.checklist_agent_id == "") or
-            (checklist_name is None or checklist_name == "") or
-            (checklist_project is None or checklist_project == "") or
-                (checklist_organization is None or checklist_organization == "")):
-            return "Checklist agent id, checklist name, checklist project and checklist organization cannot be null"
+        if (prompt is None or prompt == ""):
+            return "Checklist prompt cannot be null"
 
-        generated_prompt = self.checklist_prompt_generator.generate_prompt(
-            checklist_name, checklist_project, checklist_organization)
-        return generated_prompt
+        generated_checklist_string = self.generate_checklist_using_prompt(
+            prompt)
 
-    def generate_checklist(self, checklist_prompt):
-        # Null validation
-        if ((self.checklist_agent_id is None or self.checklist_agent_id == "") or
-                (checklist_prompt is None or checklist_prompt == "")):
-            return "Checklist agent id and checklist prompt cannot be null"
-
-        # generated_checklist = self.checklist_generator.generate_checklist(
-        #     checklist_prompt)
-
-        generated_checklist = self.checklist_generator.generate_checklist_using_subsequent_chain(
-            checklist_prompt)
+        # Parse the output and get JSON
+        generated_checklist = parse_agent_result_and_get_json(
+            generated_checklist_string)
 
         return generated_checklist

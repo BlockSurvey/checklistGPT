@@ -8,7 +8,7 @@ from flask_cors import CORS
 import config
 from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
-from controllers.checklist_controller_new import ChecklistControllerNew
+from controllers.checklist_using_agent_controller import ChecklistUsingAgentController
 from controllers.checklist_metadata_controller import ChecklistMetadataController
 from controllers.checklist_from_document import ChecklistFromDocument
 from utils.agent_utils import get_agent_by_id
@@ -50,56 +50,20 @@ def token_required():
             return jsonify({'error': {'message': 'Invalid token!'}}), 401
 
 
-@app.route('/generate-checklist-prompt', methods=['POST'])
-def generate_checklist_prompt_api():
-    payload = request.get_json()
-    checklist_agent_id = payload.get("agent_id", None)
-    checklist_name = payload.get("name", None)
-    checklist_project = payload.get("project", None)
-    checklist_organization = payload.get("organization", None)
-
-    # Null validation
-    if ((checklist_agent_id is None or checklist_agent_id == "") or
-        (checklist_name is None or checklist_name == "") or
-        (checklist_project is None or checklist_project == "") or
-            (checklist_organization is None or checklist_organization == "")):
-        return jsonify({'error': {'message': 'Checklist agent id, checklist name, checklist project and checklist organization cannot be null'}}), 400
-
-    agentDetails = get_agent_by_id(checklist_agent_id)
-    if (agentDetails.get("data", None) is None or agentDetails["data"].get("agents", None) is None or
-            len(agentDetails["data"]["agents"]) == 0):
-        return jsonify({'error': {'message': 'Oops! Agent not found'}}), 400
-
-    checklist = ChecklistController(checklist_agent_id)
-    result = checklist.generate_checklist_prompt(
-        checklist_name, checklist_project, checklist_organization)
-    response = {
-        "data": {
-            "result": result
-        }
-    }
-    return jsonify(response)
-
-
 @app.route('/generate-checklist', methods=['POST'])
 def generate_checklist_api():
+    # Generate a checklist and it will not be persisted in database
+
     payload = request.get_json()
-    checklist_agent_id = payload.get("agent_id", None)
-    checklist_prompt = payload.get("prompt", None)
+    prompt = payload.get("prompt", None)
 
     # Null validation
-    if ((checklist_agent_id is None or checklist_agent_id == "") or
-            (checklist_prompt is None or checklist_prompt == "")):
-        return jsonify({'error': {'message': 'Checklist agent id and checklist prompt cannot be null'}}), 400
+    if (prompt is None or prompt == ""):
+        return jsonify({'error': {'message': 'Checklist prompt cannot be null'}}), 400
 
-    agentDetails = get_agent_by_id(checklist_agent_id)
-    if (agentDetails.get("data", None) is None or agentDetails["data"].get("agents", None) is None or
-            len(agentDetails["data"]["agents"]) == 0):
-        return jsonify({'error': {'message': 'Oops! Agent not found'}}), 400
-
-    checklist = ChecklistController(checklist_agent_id)
+    checklist = ChecklistController()
     result = checklist.generate_checklist(
-        checklist_prompt)
+        prompt)
     response = {
         "data": {
             "result": result
@@ -108,8 +72,8 @@ def generate_checklist_api():
     return jsonify(response)
 
 
-@app.route('/generate-checklist-using-ai', methods=['POST'])
-def generate_checklist_using_ai_api():
+@app.route('/generate-checklist-using-agent', methods=['POST'])
+def generate_checklist_using_agent_api():
     payload = request.get_json()
     org_id = payload.get("orgId", None)
     project_id = payload.get("projectId", None)
@@ -127,7 +91,7 @@ def generate_checklist_using_ai_api():
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
 
     try:
-        checklist = ChecklistControllerNew(
+        checklist = ChecklistUsingAgentController(
             org_id, project_id, name, project, organization, agent_manager_id)
         checklist.generate_checklist()
 

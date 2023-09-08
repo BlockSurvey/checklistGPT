@@ -9,7 +9,7 @@ from utils.checklist_utils import save_checklist
 from utils.utils import get_user_id
 
 
-class ChecklistControllerNew():
+class ChecklistUsingAgentController():
     org_id: str
     project_id: str
     name: str
