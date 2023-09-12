@@ -22,14 +22,15 @@ class ChecklistStatusIndicatorsGeneratorAgent():
             Tasks: "{tasks}"
             
             In order to generate a set of "status indicators" we will follow the following rules: 
-                - Understand the given above tasks of the checklist
+                - Understand the given above few tasks of the checklist and it has more tasks
+                - It should be more generic to all task
                 - It should have only one positive status indicators and should be a past tense.
                 - It should have only one negative status indicators and should be a past tense.
-                - It should have only one reaction to the negative status indicators (like "Need attention" "Need repair" "Need review")
+                - It should have only one re-action to the negative status indicators (like "Need attention", "Need repair", "Need review")
                 - Don't include in progress states like "in hold", "in progress", "Pending"
                 - Include "Not Applicable(N/A)" in the list of status indicators if it is required and it should be last one
                 - It should be a single word (or) max of three words
-                - Generate only 4 status indicators
+                - It should be only 4 status indicators
             
             {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
