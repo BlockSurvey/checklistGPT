@@ -11,6 +11,7 @@ from controllers.checklist_controller import ChecklistController
 from controllers.checklist_using_agent_controller import ChecklistUsingAgentController
 from controllers.checklist_metadata_controller import ChecklistMetadataController
 from controllers.checklist_from_document import ChecklistFromDocument
+from controllers.checklist_status_indicators_controller import ChecklistStatusIndicatorsController
 from utils.agent_utils import get_agent_by_id
 from utils.utils import is_valid_url
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -256,6 +257,31 @@ def generate_checklist_using_prompt():
         return jsonify({"data": {
             "checklistId": result
         }})
+    except ValueError as error:
+        print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
+
+
+@app.route('/generate-checklist-status-indicators', methods=['POST'])
+def generate_checklist_status_indicators():
+    payload = request.get_json()
+    checklist_title = payload.get("title", None)
+    tasks = payload.get("tasks", None)
+
+    if (checklist_title is None or checklist_title == ""):
+        return jsonify({'error': {'message': 'Checklist title cannot be null'}}), 400
+
+    if (tasks is None or len(tasks) == 0):
+        return jsonify({'error': {'message': 'Tasks cannot be null'}}), 400
+
+    try:
+        checklist_metadata_generator = ChecklistStatusIndicatorsController()
+        result = checklist_metadata_generator.generate_status_indicators(
+            checklist_title, tasks)
+
+        return jsonify({"data": result})
     except ValueError as error:
         print("An error occurred:", error)
         return jsonify({'error': {'message': str(error)}}), 500
