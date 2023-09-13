@@ -30,7 +30,7 @@ class ChecklistStatusIndicatorsGeneratorAgent():
                 - Don't include in progress states like "in hold", "in progress", "Pending"
                 - Include "Not Applicable(N/A)" in the list of status indicators if it is required and it should be last one
                 - It should be a single word (or) max of three words
-                - It should be only 4 status indicators
+                - It should be only 4 unique status indicators
             
             {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
