@@ -17,9 +17,11 @@ from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderI
 from utils.langchain.document_loaders.document_utils import DocumentUtils
 import concurrent.futures
 from utils.embeddings_utils import EmbeddingUtils
-from utils.checklist_utils import save_checklist, process_generated_checklist
+from utils.checklist_utils import save_checklist_with_status_indicators, process_generated_checklist, process_generated_status_indicators
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
+
+from agents.checklist_status_indicators_generator_agent import ChecklistStatusIndicatorsGeneratorAgent
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -264,6 +266,30 @@ class ChecklistFromDocument:
 
         return json_result
 
+    def generate_status_indicators(self, generated_checklist):
+        status_indicators = []
+        if generated_checklist and generated_checklist.get('title') and generated_checklist.get('tasks') and len(generated_checklist.get('tasks')) > 0:
+            tasks = generated_checklist.get(
+                'tasks') or generated_checklist.get('subtasks')
+
+            # Convert to object array
+            if isinstance(tasks[0], str):
+                tasks = [{'title': task_title}
+                         for task_title in tasks]
+
+            # Convert to string array
+            tasks = [task.get("title") for task in tasks]
+
+            checklist_status_indicators_generator_agent = ChecklistStatusIndicatorsGeneratorAgent()
+            generated_status_indicators = checklist_status_indicators_generator_agent.generate_status_indicators(
+                generated_checklist.get('title'), tasks)
+
+            if generated_status_indicators and generated_status_indicators.get('status_indicators') and len(generated_status_indicators.get('status_indicators')) > 0:
+                status_indicators = generated_status_indicators.get(
+                    'status_indicators')
+
+        return status_indicators
+
     def get_document_loader(self, uploaded_file, uploaded_file_content_type) -> DocumentLoaderInterface:
         if uploaded_file_content_type == "application/pdf":
             return PdfLoader(uploaded_file)
@@ -276,15 +302,20 @@ class ChecklistFromDocument:
         elif uploaded_file_content_type == "image/png" or uploaded_file_content_type == "image/jpeg":
             return ImageLoader(uploaded_file)
 
-    def save_checklist(self, generated_checklist):
+    def save_checklist(self, generated_checklist, generated_status_indicators):
         # Create a checklist to DB
         insert_checklist = process_generated_checklist(
             "", generated_checklist, self.project_id)
-        save_checklist(insert_checklist)
 
         checklist_id = ""
         if insert_checklist and len(insert_checklist) > 0:
             checklist_id = insert_checklist[0].get('id')
+
+        insert_status_indicators = process_generated_status_indicators(
+            generated_status_indicators, checklist_id)
+
+        save_checklist_with_status_indicators(
+            insert_checklist, insert_status_indicators)
 
         return checklist_id
 
@@ -299,11 +330,17 @@ class ChecklistFromDocument:
             uploaded_file, uploaded_file_content_type)
         text = document_loader.get_text()
 
+        # Generate checklist
         generated_checklist = self.generate_checklist(
             text, uploaded_file_name, md5_hash)
 
+        # Generate status indicators
+        generated_status_indicators = self.generate_status_indicators(
+            generated_checklist)
+
         # Save checklist
-        checklist_id = self.save_checklist(generated_checklist)
+        checklist_id = self.save_checklist(
+            generated_checklist, generated_status_indicators)
 
         return checklist_id
 
@@ -318,8 +355,13 @@ class ChecklistFromDocument:
 
         generated_checklist = self.generate_checklist(text, url, md5_hash)
 
+        # Generate status indicators
+        generated_status_indicators = self.generate_status_indicators(
+            generated_checklist)
+
         # Save checklist
-        checklist_id = self.save_checklist(generated_checklist)
+        checklist_id = self.save_checklist(
+            generated_checklist, generated_status_indicators)
 
         return checklist_id
 
@@ -331,8 +373,13 @@ class ChecklistFromDocument:
 
         generated_checklist = self.generate_checklist(text, name, md5_hash)
 
+        # Generate status indicators
+        generated_status_indicators = self.generate_status_indicators(
+            generated_checklist)
+
         # Save checklist
-        checklist_id = self.save_checklist(generated_checklist)
+        checklist_id = self.save_checklist(
+            generated_checklist, generated_status_indicators)
 
         return checklist_id
 
@@ -386,7 +433,12 @@ class ChecklistFromDocument:
         # Parse the output and get JSON
         generated_checklist = parse_agent_result_and_get_json(checklist_result)
 
+        # Generate status indicators
+        generated_status_indicators = self.generate_status_indicators(
+            generated_checklist)
+
         # Save checklist
-        checklist_id = self.save_checklist(generated_checklist)
+        checklist_id = self.save_checklist(
+            generated_checklist, generated_status_indicators)
 
         return checklist_id

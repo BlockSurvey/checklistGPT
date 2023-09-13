@@ -1,7 +1,7 @@
 import uuid
 from typing import Any, Dict, List
 
-from gql.checklist import CREATE_MULTIPLE_CHECKLIST_MUTATION
+from gql.checklist import CREATE_MULTIPLE_CHECKLIST_MUTATION, CREATE_MULTIPLE_CHECKLIST_WITH_STATUS_INDICATORS_MUTATION
 from services.hasura_service import HasuraService
 from utils.utils import get_user_id
 
@@ -14,6 +14,20 @@ def save_checklist(insert_checklist: List[Dict]):
     hasura_service = HasuraService()
     result = hasura_service.execute(CREATE_MULTIPLE_CHECKLIST_MUTATION, {
         "checklist": insert_checklist
+    })
+
+    return result
+
+
+def save_checklist_with_status_indicators(insert_checklist: List[Dict], insert_status_indicators: List[Dict]):
+    if (insert_checklist is None or len(insert_checklist) == 0):
+        raise ValueError("Checklist must present to insert.")
+
+    # get agent by id from database
+    hasura_service = HasuraService()
+    result = hasura_service.execute(CREATE_MULTIPLE_CHECKLIST_WITH_STATUS_INDICATORS_MUTATION, {
+        "checklist": insert_checklist,
+        "checklist_status_indicators": insert_status_indicators
     })
 
     return result
@@ -76,3 +90,25 @@ def insert_child_checklist(root_node: Dict, tasks: List[Any], insert_checklist: 
 
             insert_child_checklist(child_node, subtasks,
                                    insert_checklist, checklist_id, project_id)
+
+
+def process_generated_status_indicators(status_indicators: List[str], checklist_id: str) -> List[Dict]:
+    # Validation
+    if (status_indicators is None or len(status_indicators) == 0 or checklist_id is None or checklist_id == ""):
+        return []
+
+    insert_status_indicators = []
+
+    for index, status_indicator in enumerate(status_indicators):
+        status_indicator_object = {
+            'id': str(uuid.uuid4()),
+            'name': status_indicator,
+            'order_number': index,
+            'checklist_id': checklist_id,
+            "created_by": get_user_id(),
+            "created_at": "now()"
+        }
+
+        insert_status_indicators.append(status_indicator_object)
+
+    return insert_status_indicators
