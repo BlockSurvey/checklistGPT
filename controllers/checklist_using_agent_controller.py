@@ -5,9 +5,10 @@ from agents.checklist_generator import ChecklistGenerator
 from agents.checklist_prompt_generator import ChecklistPromptGenerator
 from utils.agent_utils import (create_agent, create_agent_manager_and_agent,
                                get_organization_agent_managers_by_id)
-from utils.checklist_utils import save_checklist
+from utils.checklist_utils import save_checklist_with_status_indicators, process_generated_status_indicators
 from utils.utils import get_user_id
 
+from agents.checklist_status_indicators_generator_agent import ChecklistStatusIndicatorsGeneratorAgent
 
 class ChecklistUsingAgentController():
     org_id: str
@@ -104,6 +105,30 @@ class ChecklistUsingAgentController():
                 self.insert_child_checklist(child_node, subtasks,
                                             insert_checklist, checklist_id, project_id)
 
+    def generate_status_indicators(self, generated_checklist):
+        status_indicators = []
+        if generated_checklist and generated_checklist.get('title') and generated_checklist.get('tasks') and len(generated_checklist.get('tasks')) > 0:
+            tasks = generated_checklist.get(
+                'tasks') or generated_checklist.get('subtasks')
+
+            # Convert to object array
+            if isinstance(tasks[0], str):
+                tasks = [{'title': task_title}
+                         for task_title in tasks]
+
+            # Convert to string array
+            tasks = [task.get("title") for task in tasks]
+
+            checklist_status_indicators_generator_agent = ChecklistStatusIndicatorsGeneratorAgent()
+            generated_status_indicators = checklist_status_indicators_generator_agent.generate_status_indicators(
+                generated_checklist.get('title'), tasks)
+
+            if generated_status_indicators and generated_status_indicators.get('status_indicators') and len(generated_status_indicators.get('status_indicators')) > 0:
+                status_indicators = generated_status_indicators.get(
+                    'status_indicators')
+
+        return status_indicators
+
     def generate_checklist(self):
         # Null validation
         if ((self.org_id is None or self.org_id == "") or
@@ -114,7 +139,7 @@ class ChecklistUsingAgentController():
 
         # Free organization can have only three agentMangers
         self.org_limit_validation()
-        
+
         # Create an agentManager and agent
         agent_manager_id = self.agent_manager_id
         agent_manager_name = "Agent Manager for checklist - " + self.name
@@ -138,7 +163,7 @@ class ChecklistUsingAgentController():
             prompt_generator_agent_id)
         generated_prompt = checklist_prompt_generator.generate_prompt(
             self.name, self.project, self.organization)
-        
+
         # Create a agent to generate a checklist
         checklist_generator_agent_id = str(uuid.uuid4())
         checklist_generator_agent_name = "Agent for checklist generator - " + self.name
@@ -151,10 +176,25 @@ class ChecklistUsingAgentController():
         generated_checklist = checklist_generator.generate_checklist_using_subsequent_chain(
             generated_prompt)
 
-        # Create a checklist to DB
+        # Generate status indicators
+        generated_status_indicators = self.generate_status_indicators(
+            generated_checklist)
+
+        # Pre-process checklist to store in DB
         insert_checklist = self.process_generated_checklist(
             agent_manager_id, generated_checklist, self.project_id)
-        checklist_mutation_result = save_checklist(insert_checklist)
+
+        # Get the checklist id
+        checklist_id = ""
+        if insert_checklist and len(insert_checklist) > 0:
+            checklist_id = insert_checklist[0].get('id')
+
+        insert_status_indicators = process_generated_status_indicators(
+            generated_status_indicators, checklist_id)
+
+        # Save to DB
+        checklist_mutation_result = save_checklist_with_status_indicators(
+            insert_checklist, insert_status_indicators)
 
         # Create a agent to generate a metadata
         # Generate metadata
