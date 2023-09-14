@@ -20,7 +20,7 @@ class ChecklistController():
         In order to do this we will follow the following rules: 
             - Generate detailed tasks: Use given prompt to generate a more detailed checklist
             - Number of tasks: Minimum 15 tasks would be great
-            - Do not include sequential number
+            - Condition: Do not start with a number or hyphen
 
         {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
