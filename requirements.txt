@@ -3,7 +3,7 @@ flask_cors
 Gunicorn==21.1.0
 langchain==0.0.264
 google-api-python-client
-openai
+openai==0.27.2
 python-dotenv
 requests
 pyjwt

@@ -7,6 +7,10 @@ class DocumentUtils():
         md5_hash = hashlib.md5()
         for chunk in iter(lambda: file.read(4096), b""):
             md5_hash.update(chunk)
+
+        # Reset the file pointer to the beginning of the file
+        file.seek(0)
+
         return md5_hash.hexdigest()
 
     def generate_md5_for_text(self, text):

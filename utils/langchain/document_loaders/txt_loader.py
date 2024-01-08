@@ -8,7 +8,12 @@ class TxtLoader(DocumentLoaderInterface):
         self.uploaded_file = file
 
     def read_text_file(self):
-        return self.uploaded_file.read().decode('utf-8')
+        text = self.uploaded_file.read().decode('utf-8')
+
+        # Reset the pointer to the beginning of the file
+        self.uploaded_file.seek(0)
+
+        return text
 
     def get_text(self) -> str:
         return self.read_text_file()
