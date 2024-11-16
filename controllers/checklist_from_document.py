@@ -2,6 +2,7 @@ import html
 from os import close
 import gc
 
+from utils.langchain.document_loaders.docx_loader import DocxLoader
 from utils.langchain.document_loaders.pdf_loader import PdfLoader
 from utils.langchain.document_loaders.url_loader import UrlLoader
 from utils.langchain.document_loaders.txt_loader import TxtLoader
@@ -301,6 +302,8 @@ class ChecklistFromDocument:
             return ExcelLoader(uploaded_file)
         elif uploaded_file_content_type == "image/png" or uploaded_file_content_type == "image/jpeg":
             return ImageLoader(uploaded_file)
+        elif uploaded_file_content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            return DocxLoader(uploaded_file)
 
     def save_checklist(self, generated_checklist, generated_status_indicators):
         # Create a checklist to DB
