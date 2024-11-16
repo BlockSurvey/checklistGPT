@@ -21,8 +21,8 @@ from werkzeug.exceptions import RequestEntityTooLarge
 app = Flask(__name__)
 CORS(app)
 
-# Set the maximum allowed content length to 20MB
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
+# Set the maximum allowed content length to 50MB
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 
 @app.before_request
@@ -153,7 +153,8 @@ def generate_checklist_from_document():
         return jsonify({"error": {"message": "Missing parameters"}}), 400
 
     ALLOWED_CONTENT_TYPES = {'application/pdf', 'text/plain', 'text/csv',
-                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'}
+                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel',
+                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}
     if (file.content_type not in ALLOWED_CONTENT_TYPES):
         return jsonify({"error": {"message": "File type not allowed."}}), 400
 

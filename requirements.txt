@@ -35,3 +35,6 @@ tiktoken
 # CSV and excel file reader
 pandas
 openpyxl
+
+# Docx
+python-docx
