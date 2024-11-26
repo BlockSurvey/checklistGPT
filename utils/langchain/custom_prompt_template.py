@@ -64,6 +64,7 @@ class CustomPromptTemplate(StringPromptTemplate):
             })
         else:
             print("No matches found")
+            return
 
         # for match in matches:
         #     thought, action, action_input, observation = match
