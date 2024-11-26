@@ -147,6 +147,7 @@ def generate_checklist_from_document():
     # Fetch payload data (form data)
     org_id = request.form.get('orgId', default=None)
     project_id = request.form.get('projectId', default=None)
+    prompt = request.form.get('prompt', default=None)
 
     # Validation
     if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (file.filename == '')):
@@ -161,7 +162,7 @@ def generate_checklist_from_document():
     try:
         checklist_from_document = ChecklistFromDocument(org_id, project_id)
         result = checklist_from_document.generate_checklist_from_document(
-            file, file.content_type, file.filename)
+            file, file.content_type, file.filename, prompt)
 
         return jsonify({"data": {
             "checklistId": result
@@ -179,6 +180,7 @@ def generate_checklist_from_url():
     org_id = payload.get("orgId", None)
     project_id = payload.get("projectId", None)
     url = payload.get("url", None)
+    prompt = payload.get("prompt", None)
 
     if ((org_id is None or org_id == "") or (project_id is None or project_id == "") or (url is None or url == "")):
         return jsonify({'error': {'message': 'Missing parameters'}}), 400
@@ -188,7 +190,7 @@ def generate_checklist_from_url():
 
     try:
         checklist_from_document = ChecklistFromDocument(org_id, project_id)
-        result = checklist_from_document.generate_checklist_from_url(url)
+        result = checklist_from_document.generate_checklist_from_url(url, prompt)
 
         return jsonify({"data": {
             "checklistId": result

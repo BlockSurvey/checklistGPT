@@ -37,7 +37,7 @@ class UrlLoader(DocumentLoaderInterface):
             return cleaned_text
         else:
             raise ValueError(
-                f"Failed to retrieve content. HTTP Status Code: {response.status_code}")
+                f"Failed to retrieve content from URL. HTTP Status Code: {response.status_code}")
 
     def get_text(self) -> str:
         text = self.scrape_content(self.url)

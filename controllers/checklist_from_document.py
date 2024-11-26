@@ -189,7 +189,7 @@ class ChecklistFromDocument:
 
         return result
 
-    def generate_checklist(self, text, name, md5_hash):
+    def generate_checklist(self, text, name, md5_hash, prompt):
         if text is None or text == "":
             raise ValueError("Missing required parameters")
 
@@ -241,6 +241,9 @@ class ChecklistFromDocument:
         summarized_docs = self.summarize_selected_docs(selected_docs)
 
         generated_prompt = self.generate_prompt(summarized_docs)
+
+        if prompt:
+            generated_prompt += f"\n{prompt}"
 
         checklist_result = self.generate_checklist_using_prompt(
             generated_prompt)
@@ -322,7 +325,7 @@ class ChecklistFromDocument:
 
         return checklist_id
 
-    def generate_checklist_from_document(self, uploaded_file, uploaded_file_content_type, uploaded_file_name):
+    def generate_checklist_from_document(self, uploaded_file, uploaded_file_content_type, uploaded_file_name,prompt):
         if uploaded_file is None or uploaded_file_content_type is None or uploaded_file_name is None:
             raise ValueError("Missing required parameters")
 
@@ -335,7 +338,7 @@ class ChecklistFromDocument:
 
         # Generate checklist
         generated_checklist = self.generate_checklist(
-            text, uploaded_file_name, md5_hash)
+            text, uploaded_file_name, md5_hash, prompt)
 
         # Generate status indicators
         generated_status_indicators = self.generate_status_indicators(
@@ -347,7 +350,7 @@ class ChecklistFromDocument:
 
         return checklist_id
 
-    def generate_checklist_from_url(self, url):
+    def generate_checklist_from_url(self, url, prompt):
         if url is None or url == "":
             raise ValueError("Missing required parameters")
 
@@ -356,7 +359,7 @@ class ChecklistFromDocument:
         html_loader = UrlLoader(url)
         text = html_loader.get_text()
 
-        generated_checklist = self.generate_checklist(text, url, md5_hash)
+        generated_checklist = self.generate_checklist(text, url, md5_hash, prompt)
 
         # Generate status indicators
         generated_status_indicators = self.generate_status_indicators(
