@@ -191,7 +191,7 @@ class ChecklistFromDocument:
 
     def generate_checklist(self, text, name, md5_hash, prompt):
         if text is None or text == "":
-            raise ValueError("Missing required parameters")
+            raise ValueError("Content not found in the file.")
 
         embeddings = None
         splitted_docs = None
@@ -327,7 +327,7 @@ class ChecklistFromDocument:
 
     def generate_checklist_from_document(self, uploaded_file, uploaded_file_content_type, uploaded_file_name,prompt):
         if uploaded_file is None or uploaded_file_content_type is None or uploaded_file_name is None:
-            raise ValueError("Missing required parameters")
+            raise ValueError("Content in the Uploaded file not found")
 
         md5_hash = self.document_utils.generate_md5_for_uploaded_file(
             uploaded_file)
@@ -352,7 +352,7 @@ class ChecklistFromDocument:
 
     def generate_checklist_from_url(self, url, prompt):
         if url is None or url == "":
-            raise ValueError("Missing required parameters")
+            raise ValueError("Content in the Uploaded URL not found")
 
         md5_hash = self.document_utils.generate_md5_for_text(url)
 
