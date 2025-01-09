@@ -157,7 +157,7 @@ def generate_checklist_from_document():
                              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel',
                              'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}
     if (file.content_type not in ALLOWED_CONTENT_TYPES):
-        return jsonify({"error": {"message": "File type not allowed."}}), 400
+        return jsonify({"error": {"message": "File type not allowed. Allowed types are .txt, .pdf, .xlsx, .docx"}}), 400
 
     try:
         checklist_from_document = ChecklistFromDocument(org_id, project_id)
