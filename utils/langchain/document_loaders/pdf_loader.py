@@ -5,6 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
 
 from PyPDF2 import PdfReader
+from PyPDF2.errors import PdfReadError
 
 
 class PdfLoader(DocumentLoaderInterface):
@@ -14,9 +15,15 @@ class PdfLoader(DocumentLoaderInterface):
         self.uploaded_file = file
 
     def extract_text_from_pdf(self):
-        pdf_reader = PdfReader(self.uploaded_file)
-        texts = [page.extract_text() for page in pdf_reader.pages]
-        return ''.join(texts)
+        try:
+            pdf_reader = PdfReader(self.uploaded_file)
+            if pdf_reader.is_encrypted:
+                raise ValueError("Uploaded file is Encrypted.")
+            
+            texts = [page.extract_text() for page in pdf_reader.pages]
+            return ''.join(texts)
+        except PdfReadError as e:
+            raise ValueError("Invalid PDF file.") from e
 
     def get_text(self):
         extracted_text = self.extract_text_from_pdf()
