@@ -40,7 +40,7 @@ class ChecklistFromDocumentDirectText:
         text = document_loader.get_text()
 
         if not text or text.strip() == "":
-            raise ValueError("No content found in the Document.")
+            raise ValueError("No content found in the File.")
 
         # Directly generate a checklist from the extracted text
         checklist_result = self.generate_checklist_from_text(text)
