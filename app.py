@@ -8,6 +8,7 @@ from flask_cors import CORS
 import config
 from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
+from controllers.checklist_from_document_direct_text import ChecklistFromDocumentDirectText
 from controllers.checklist_using_agent_controller import ChecklistUsingAgentController
 from controllers.checklist_metadata_controller import ChecklistMetadataController
 from controllers.checklist_from_document import ChecklistFromDocument
@@ -157,7 +158,7 @@ def generate_checklist_from_document():
                              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel',
                              'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}
     if (file.content_type not in ALLOWED_CONTENT_TYPES):
-        return jsonify({"error": {"message": "File type not allowed."}}), 400
+        return jsonify({"error": {"message": "File type not allowed. Allowed types are .txt, .pdf, .xlsx, .docx"}}), 400
 
     try:
         checklist_from_document = ChecklistFromDocument(org_id, project_id)
@@ -169,6 +170,40 @@ def generate_checklist_from_document():
         }})
     except ValueError as error:
         print("An error occurred:", error)
+        return jsonify({'error': {'message': str(error)}}), 500
+    finally:
+        gc.collect()
+
+
+# Example Usage
+@app.route('/generate-checklist-from-document-text', methods=['POST'])
+def generate_checklist_from_document_text():
+    if 'file' not in request.files:
+        return jsonify({'error': {'message': 'Missing parameters'}}), 400
+
+    file = request.files['file']
+    org_id = request.form.get('orgId', default=None)
+    project_id = request.form.get('projectId', default=None)
+
+    if not org_id or not project_id or not file.filename:
+        return jsonify({"error": {"message": "Missing parameters"}}), 400
+
+    ALLOWED_CONTENT_TYPES = {
+        'application/pdf', 'text/plain', 'text/csv',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    }
+
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
+        return jsonify({"error": {"message": "File type not allowed. Allowed types are .txt, .pdf, .xlsx, .docx"}}), 400
+
+    try:
+        checklist_from_document_text = ChecklistFromDocumentDirectText(org_id, project_id)
+        checklist_id = checklist_from_document_text.generate_checklist_from_document(file, file.content_type, file.filename)
+
+        return jsonify({"data": {"checklistId": checklist_id}})
+    except ValueError as error:
         return jsonify({'error': {'message': str(error)}}), 500
     finally:
         gc.collect()
