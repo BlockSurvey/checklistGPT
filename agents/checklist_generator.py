@@ -59,11 +59,11 @@ class ChecklistGenerator():
                 - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps
                 - Generate detailed tasks: Use given prompt to generate a more detailed checklist and detailed subtasks
                 - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks
-                - Number of tasks: Minimum 15 tasks would be great
+                - Tasks Limit: The total number of tasks, including subtasks, must not exceed 15. This is mandatory.
 
             Begin: Remember ask relevant questions to improve the quality of the checklist
             
-            Important: Do not return half results, return full results.
+            Important: Do not return half results, return full results. Never exceed 15 tasks (including subtasks) in total. If tasks exceed the limit, combine or prioritize to stay within 15 tasks/subtasks total.
             
             {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
