@@ -154,16 +154,22 @@ class ChecklistFromDocument:
         
         Prompt: "{final_prompt}"
         
-        In order to do this we will follow the following rules: 
+        Follow these rules strictly:
+            - The **total number of tasks + subtasks combined must always be less than 10.**
+            - If fewer than 10 tasks are possible, allocate the remaining count to subtasks.
+            - If 10 tasks are generated, do not add subtasks.
+            - If fewer than 10 tasks exist, generate **only enough** subtasks to reach a total of 10.
+        
+        In order to do this we will follow the following rules:
+            - The **total number of tasks + subtasks combined must always be less than 10.** 
             - Ask relevant questions: Ask yourself relevant questions and improve the quality of the checklist
-            - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps
+            - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps keeping the total number of tasks + subtasks less than 10.
             - Generate detailed tasks: Use given prompt to generate a more detailed checklist and detailed subtasks
             - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks
-            - Tasks Limit: The total number of tasks, including subtasks, must not exceed 15. This is mandatory.
 
-        Begin: Remember ask relevant questions to improve the quality of the checklist
+        Begin: Remember ask relevant questions to improve the quality of the checklist. Ensure the checklist is practical, structured, and within the 10-item limit.
         
-        Important: Do not return half results, return full results. Never exceed 15 tasks (including subtasks) in total. If tasks exceed the limit, combine or prioritize to stay within 15 tasks/subtasks total.
+        Important: Never exceed 10 tasks + subtasks in total. If tasks exceed the limit, combine or prioritize to stay within 10 tasks + subtasks total.
 
         {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":

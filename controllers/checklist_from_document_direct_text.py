@@ -67,16 +67,22 @@ class ChecklistFromDocumentDirectText:
         
         Text: ```{text}```
         
+        Follow these rules strictly:
+            - The **total number of tasks + subtasks combined must always be less than 10.**
+            - If fewer than 10 tasks are possible, allocate the remaining count to subtasks.
+            - If 10 tasks are generated, do not add subtasks.
+            - If fewer than 10 tasks exist, generate **only enough** subtasks to reach a total of 10.
+        
         Instructions:
-        - Extract key actionable tasks directly from the text entirely without paraphrasing or changes.
-        - Ensure all provided text is covered and used to generate tasks.
-        - Limit the total number of tasks, including subtasks, to 15 while ensuring all provided text is covered. This is mandatory.
-        - Create subtasks for each major task where possible.
-        - If a prompt is provided, use it to refine or expand the checklist.
-        - Format the checklist as a JSON object.
-        - Ensure each task is clear and concise.
+            - Extract key actionable tasks directly from the text entirely without paraphrasing or changes.
+            - Ensure all provided text is covered and used to generate tasks.
+            - The **total number of tasks + subtasks combined must always be less than 10.** 
+            - Create subtasks for each major task where possible.
+            - If a prompt is provided, use it to refine or expand the checklist.
+            - Format the checklist as a JSON object.
+            - Ensure each task is clear and concise.
 
-        Important:  Do not return half results, return full results. Do not exceed number of tasks(including subtasks) more than 15. If tasks exceed the limit, combine or prioritize to stay within 15 tasks/subtasks total.
+        Important:  Do not return half results, return full results. Never exceed 10 tasks + subtasks in total. If tasks exceed the limit, combine or prioritize to stay within 10 tasks + subtasks total.
 
         {format_instructions}"""
 
