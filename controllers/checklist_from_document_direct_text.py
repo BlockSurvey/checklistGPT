@@ -68,7 +68,7 @@ class ChecklistFromDocumentDirectText:
         Text: ```{text}```
         
         Follow these rules strictly:
-            - The **total number of tasks + subtasks combined must always be maximum 10.**
+            - The **total number of tasks must always be maximum 10.**
             - 10 maximum tasks are to be generated, do not add subtasks.
         
         Instructions:
