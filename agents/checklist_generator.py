@@ -50,32 +50,23 @@ class ChecklistGenerator():
     def generate_checklist_using_subsequent_chain(self, generated_prompt: str):
         # Chain to generate a checklist
         llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
-        dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear and checklist using below Prompt,
+        dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear and detailed checklist using below Prompt,
             
             Prompt: "{final_prompt}"
             
             Follow these rules strictly:
-                - The **total number of tasks & subtasks combined must always be 10.**
-                - If a task has subtasks, the subtasks must be included in the total count.
-                - Each subtask counts as 1 item toward the total of 10.
-                - If 10 tasks are generated, do not add subtasks.
-                - If fewer than 10 tasks are generated, use the remaining count for subtasks to reach a total of 10.
-                
-            **Example of Distribution:**
-                - 10 tasks → **0 subtasks**
-                - 5 tasks → **5 subtasks**
-                - 7 tasks → **3 subtasks**
-                - 3 tasks → **7 subtasks**
+                - The **total number of tasks must always be maximum 10.**
+                - 10 maximum tasks are to be generated, do not add subtasks.
         
             In order to do this we will follow the following rules: 
                 - Ask relevant questions: Ask yourself relevant questions and improve the quality of the checklist.
                 - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps.
-                - Generate tasks: Use given prompt to generate a checklist and subtasks, ensuring the total is item numbers combined are exactly 10.
+                - Generate detailed tasks: Use given prompt to generate a more detailed checklist, ensuring the total is item numbers combined are exactly 10.
                 - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks.
 
             Begin: Remember ask relevant questions to improve the quality of the checklist. Ensure the checklist is practical, structured, and within the 10-item limit.
             
-            Important: Never exceed 10 items in total (tasks + subtasks). If the total exceeds 10, combine tasks or remove less important ones to stay within the limit.
+            Important: Never exceed 10 items in total. If the total exceeds 10, tasks or remove less important ones to stay within the limit.
             
             {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":
