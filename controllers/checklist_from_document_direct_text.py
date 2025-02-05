@@ -68,21 +68,18 @@ class ChecklistFromDocumentDirectText:
         Text: ```{text}```
         
         Follow these rules strictly:
-            - The **total number of tasks + subtasks combined must always be less than 10.**
-            - If fewer than 10 tasks are possible, allocate the remaining count to subtasks.
-            - If 10 tasks are generated, do not add subtasks.
-            - If fewer than 10 tasks exist, generate **only enough** subtasks to reach a total of 10.
+            - The **total number of tasks + subtasks combined must always be maximum 10.**
+            - 10 maximum tasks are to be generated, do not add subtasks.
         
         Instructions:
             - Extract key actionable tasks directly from the text entirely without paraphrasing or changes.
             - Ensure all provided text is covered and used to generate tasks.
-            - The **total number of tasks + subtasks combined must always be less than 10.** 
-            - Create subtasks for each major task where possible.
+            - The **total number of tasks must always be maximum 10.** 
             - If a prompt is provided, use it to refine or expand the checklist.
             - Format the checklist as a JSON object.
             - Ensure each task is clear and concise.
 
-        Important:  Do not return half results, return full results. Never exceed 10 tasks + subtasks in total. If tasks exceed the limit, combine or prioritize to stay within 10 tasks + subtasks total.
+        Important:  Do not return half results, return full results. Never exceed 10 tasks in total. If tasks exceed the limit, combine or prioritize to stay within 10 tasks total.
 
         {format_instructions}"""
 
