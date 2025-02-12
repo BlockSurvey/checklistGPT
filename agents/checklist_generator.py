@@ -55,10 +55,14 @@ class ChecklistGenerator():
             Prompt: "{final_prompt}"
             
             Follow these rules strictly:
-                - The **total number of tasks must always be maximum 10.**
+                - The **total number of tasks must be maximum 10.**
                 - 10 maximum tasks are to be generated, do not add subtasks.
         
             In order to do this we will follow the following rules: 
+                - If the prompt is **having any instructions or quantities**, do incorporate them in creating the checklist.
+                - If the prompt explicitly says **any instructions or quantities**, the generated checklist must strictly adhere to its wording.
+                - Organize the tasks logically, ensuring dependencies and priorities are followed.
+                - If necessary, structure the checklist to maintain clarity and usability **without altering core details**.
                 - Ask relevant questions: Ask yourself relevant questions and improve the quality of the checklist.
                 - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps.
                 - Generate detailed tasks: Use given prompt to generate a more detailed checklist, ensuring the total is item numbers combined are exactly 10.
@@ -66,7 +70,11 @@ class ChecklistGenerator():
 
             Begin: Remember ask relevant questions to improve the quality of the checklist. Ensure the checklist is practical, structured, and within the 10-item limit.
             
-            Important: Never exceed 10 items in total. If the total exceeds 10, tasks or remove less important ones to stay within the limit.
+            Important:
+                - **Never exceed 10 tasks.** If more tasks are needed, **prioritize the most critical ones** rather than exceeding the limit.
+                - **If ambiguity exists, assume the user wants a fully detailed checklist without altering their input.**
+                
+            **Begin Processing Now.** Generate the checklist while ensuring compliance with all the rules above.
             
             {format_instructions}"""
         checklist_format_instructions = """The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "\`\`\`json" and "\`\`\`":

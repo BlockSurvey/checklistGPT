@@ -17,16 +17,18 @@ class ChecklistUsingAgentController():
     project: str
     organization: str
     agent_manager_id: str
+    role: str
 
     # Dependencies
 
-    def __init__(self, org_id: str, project_id: str, name: str, project: str, organization: str, agent_manager_id: str) -> None:
+    def __init__(self, org_id: str, project_id: str, name: str, project: str, organization: str, agent_manager_id: str, role: str) -> None:
         self.org_id = org_id
         self.project_id = project_id
         self.name = name
         self.project = project
         self.organization = organization
         self.agent_manager_id = agent_manager_id
+        self.role = role
 
     def org_limit_validation(self) -> bool:
         query_result = get_organization_agent_managers_by_id(self.org_id)
@@ -162,7 +164,7 @@ class ChecklistUsingAgentController():
         checklist_prompt_generator = ChecklistPromptGenerator(
             prompt_generator_agent_id)
         generated_prompt = checklist_prompt_generator.generate_prompt(
-            self.name, self.project, self.organization)
+            self.name, self.project, self.organization, self.role)
 
         # Create a agent to generate a checklist
         checklist_generator_agent_id = str(uuid.uuid4())

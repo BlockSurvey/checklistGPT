@@ -23,6 +23,7 @@ class ChecklistStatusIndicatorsGeneratorAgent():
             
             In order to generate a set of "status indicators" we will follow the following rules: 
                 - Understand the given above few tasks of the checklist and it has more tasks
+                - **Ensure status indicators align with the checklist's purpose & constraints**.
                 - It should be more generic to all task
                 - It should have only one positive status indicators and should be a past tense.
                 - It should have only one negative status indicators and should be a past tense.

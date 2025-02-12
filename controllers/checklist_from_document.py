@@ -161,7 +161,7 @@ class ChecklistFromDocument:
         In order to do this we will follow the following rules:
             - Ask relevant questions: Ask yourself relevant questions and improve the quality of the checklist
             - Identify the tasks: Make a list of all the tasks required to achieve your goal. Try to be as specific as possible and break down larger tasks into smaller, more manageable steps
-            - Generate detailed tasks: Use given prompt to generate a more detailed checklist and detailed subtasks
+            - Generate detailed tasks: Use given prompt to generate a more detailed checklist and subtasks
             - Prioritize tasks: Determine the order in which tasks should be completed. Consider factors such as dependencies, time constraints, and importance when prioritizing tasks
 
         Begin: Remember ask relevant questions to improve the quality of the checklist. Ensure the checklist is practical, structured, and within the 10-item limit.
