@@ -83,6 +83,7 @@ def generate_checklist_using_agent_api():
     project = payload.get("project", None)
     organization = payload.get("organization", None)
     agent_manager_id = payload.get("id", None)
+    role = payload.get("role", None)
 
     # Null validation
     if ((org_id is None or org_id == "") or
@@ -94,7 +95,7 @@ def generate_checklist_using_agent_api():
 
     try:
         checklist = ChecklistUsingAgentController(
-            org_id, project_id, name, project, organization, agent_manager_id)
+            org_id, project_id, name, project, organization, agent_manager_id, role)
         checklist.generate_checklist()
 
         return jsonify({

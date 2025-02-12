@@ -16,19 +16,19 @@ class ChecklistPromptGenerator():
     def __init__(self, checklist_agent_id: str):
         self.checklist_agent_id = checklist_agent_id
 
-    def generate_prompt(self, checklist_name, checklist_project, checklist_organization):
+    def generate_prompt(self, checklist_name, checklist_project, checklist_organization, checklist_role):
         # gpt-3.5-turbo / gpt-4
         llm = ChatOpenAI(
             temperature=0.5, model_name="gpt-3.5-turbo")
 
         prompt_creator_prompt = PromptTemplate.from_template(
-            "You are an expert in generating a very detailed and clear prompt for checklist creation. Generate or improve the quality of the prompt for checklist creation. Generate or improve this prompt: {text}"
+            "You are an expert in generating a very detailed and clear prompt for checklist creation. Ensure the generated checklist follows the exact instructions, quantities, steps, and details given in '{text}'. Do NOT omit, modify, or generalize any steps unless explicitly instructed and include any details, material or content mentioned."
         )
         prompt_creator_chain = LLMChain(
             llm=llm, prompt=prompt_creator_prompt)
 
         relevant_prompt = PromptTemplate.from_template(
-            "You are an expert to come up with more relevant questions for a given objective. Come up with a relevant question list for this objective: {objective}"
+            "You are an expert to come up with relevant questions for a given objective. Extract and ensure compliance with all steps, instructions, quantities, and details given in '{objective}'"
         )
         relevant_chain = LLMChain(llm=llm, prompt=relevant_prompt)
 
@@ -102,11 +102,24 @@ class ChecklistPromptGenerator():
             agent=agent, tools=tools)
 
         guidelines = """
-            Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist.
+            Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist for the role of "{checklist_role}" in the "{checklist_organization}" industry.
 
             in order to improve the prompt, follow the following process:
-            - An improved prompt for the checklist creation with standard, guidelines and methodologies for the "{checklist_organization}" industry
-        """.format(checklist_name=checklist_name, checklist_organization=checklist_organization)
+            - An improved prompt for the checklist creation with standard, guidelines and methodologies for the role of "{checklist_role}" in the "{checklist_organization}" industry.
+            - Ensure **strict adherence** to include any **specific numbers, steps, tasks, details, material, content or instructions** from "{checklist_name}"
+            - Format the checklist with **structured methodologies and best practices** relevant to "{checklist_role}" in the "{checklist_organization}" industry. 
+        """.format(checklist_name=checklist_name, checklist_organization=checklist_organization, checklist_role=checklist_role)
+
+        # If the checklist_role is None or empty
+        if (checklist_role is None or checklist_role == ""):
+            guidelines = """
+                Generate a refined, more-detailed prompt to create a "{checklist_name}" checklist.
+
+                in order to improve the prompt, follow the following process:
+                - An improved prompt for the checklist creation with standard, guidelines and methodologies for the "{checklist_organization}" industry. 
+                - Ensure **strict adherence** to include any **specific numbers, steps, tasks, details, material, content or instructions** from "{checklist_name}"
+                - Format the checklist with **structured methodologies and best practices** relevant to the "{checklist_organization}" industry.  
+            """.format(checklist_name=checklist_name, checklist_organization=checklist_organization)
         # If the checklist_organization is None or empty
         if (checklist_organization is None or checklist_organization == ""):
             guidelines = """
