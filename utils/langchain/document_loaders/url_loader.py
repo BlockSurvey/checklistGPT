@@ -3,42 +3,44 @@ import requests
 from lxml import html
 import re
 import gc
-
+import time
 
 class UrlLoader(DocumentLoaderInterface):
     url = None
 
-    def __init__(self, url):
+    def __init__(self, url: str, max_retries: int = 5, backoff_factor: float = 1.0):
         self.url = url
+        self.max_retries = max_retries
+        self.backoff_factor = backoff_factor
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; Checklist/1.0; +https://checklist.gg/)"
+        }
 
-    def scrape_content(self, url):
-        # Fetch the content of the URL using requests
-        response = requests.get(url)
+    def scrape_content(self) -> str:
+        for attempt in range(self.max_retries):
+            resp = requests.get(self.url, headers=self.headers, timeout=10)
+            if resp.status_code == 200:
+                break
+            if resp.status_code == 429 and attempt < self.max_retries - 1:
+                # exponential back‑off
+                time.sleep(self.backoff_factor * (2 ** attempt))
+                continue
+            raise ValueError(f"Failed to retrieve {self.url}: HTTP {resp.status_code}")
 
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Parse the content using lxml
-            tree = html.fromstring(response.content)
+        tree = html.fromstring(resp.content)
+        # strip scripts, styles, hidden inputs, etc.
+        for node in tree.xpath(
+            '//*[name()="script" or name()="style" or @hidden'
+            ' or @aria-hidden="true" or (name()="input" and @type="hidden")]'
+        ):
+            node.getparent().remove(node)
 
-            # Remove <script>, <style>, and hidden elements from the tree
-            for to_remove in tree.xpath('//*[name()="script" or name()="style" or @hidden or @aria-hidden="true" or name()="input" and @type="hidden"]'):
-                to_remove.getparent().remove(to_remove)
+        raw = tree.text_content()
+        del tree
+        gc.collect()
 
-            # Extract the remaining text content of the page
-            raw_text = tree.text_content().strip()
-
-            # Clean up object and memory
-            del tree
-            gc.collect()
-
-            # Replace sequences of whitespace characters with a single space
-            cleaned_text = re.sub(r'\s+', ' ', raw_text)
-
-            return cleaned_text
-        else:
-            raise ValueError(
-                f"Failed to retrieve content from URL. HTTP Status Code: {response.status_code}")
+        # collapse whitespace
+        return re.sub(r"\s+", " ", raw).strip()
 
     def get_text(self) -> str:
-        text = self.scrape_content(self.url)
-        return text
+        return self.scrape_content()

@@ -3,7 +3,7 @@ from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
-from langchain.utilities import GoogleSearchAPIWrapper
+from langchain_google_community import GoogleSearchAPIWrapper
 
 from utils.langchain.custom_output_parser import CustomOutputParser
 from utils.langchain.custom_prompt_template import CustomPromptTemplate
@@ -19,7 +19,7 @@ class ChecklistPromptGenerator():
     def generate_prompt(self, checklist_name, checklist_project, checklist_organization, checklist_role):
         # gpt-3.5-turbo / gpt-4
         llm = ChatOpenAI(
-            temperature=0.5, model_name="gpt-3.5-turbo")
+            temperature=0.5, model="gpt-3.5-turbo")
 
         prompt_creator_prompt = PromptTemplate.from_template(
             "You are an expert in generating a very detailed and clear prompt for checklist creation. Ensure the generated checklist follows the exact instructions, quantities, steps, and details given in '{text}'. Do NOT omit, modify, or generalize any steps unless explicitly instructed and include any details, material or content mentioned."
@@ -129,7 +129,7 @@ class ChecklistPromptGenerator():
                 - An improved prompt for the checklist creation with standard, guidelines and methodologies
             """.format(checklist_name=checklist_name)
 
-        output = agent_executor.run(guidelines)
+        output = agent_executor.invoke(guidelines)
         return output
 
         # project: {checklist_project}

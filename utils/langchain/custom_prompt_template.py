@@ -6,6 +6,7 @@ from langchain.agents import Tool
 from langchain.prompts import StringPromptTemplate
 
 from gql.agent import INSERT_AGENT_RESULT
+from typing import ClassVar
 from services.hasura_service import HasuraService
 
 
@@ -15,7 +16,7 @@ class CustomPromptTemplate(StringPromptTemplate):
     # The list of tools available
     tools: List[Tool]
     checklist_agent_id: str
-    hasura_service = HasuraService()
+    hasura_service: ClassVar = HasuraService()
 
     def format(self, **kwargs) -> str:
         # Get the intermediate steps (AgentAction, Observation tuples)
