@@ -8,8 +8,9 @@ from utils.langchain.document_loaders.excel_loader import ExcelLoader
 from utils.langchain.document_loaders.image_loader import ImageLoader
 
 from langchain.chains import LLMChain
-from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
+from langchain_core.runnables import RunnableSequence
 from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
 from utils.langchain.document_loaders.document_utils import DocumentUtils
@@ -24,7 +25,7 @@ class ChecklistFromDocumentDirectText:
     project_id = None
     document_utils = DocumentUtils()
 
-    llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo")
 
     def __init__(self, org_id, project_id) -> None:
         self.org_id = org_id
@@ -110,8 +111,7 @@ class ChecklistFromDocumentDirectText:
             template=dynamic_template,
             partial_variables={"format_instructions": checklist_format_instructions},
         )
-
-        checklist_chain = LLMChain(llm=llm, prompt=prompt_template)
+        checklist_chain = prompt_template | llm
 
         # Pass the parameters dynamically
         params = {"text": text}
@@ -119,7 +119,7 @@ class ChecklistFromDocumentDirectText:
             params["prompt"] = prompt
 
         try:
-            return checklist_chain.run(params)
+            return checklist_chain.invoke(params)
         except openai.error.InvalidRequestError as e:
             if "maximum context length" in str(e):
                 raise ValueError("File contents are too large to process.") from e

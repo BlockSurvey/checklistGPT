@@ -5,7 +5,7 @@ import re
 import regex
 from flask import g
 from langchain.chains import LLMChain, SimpleSequentialChain
-from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 
 from gql.agent import INSERT_AGENT_RESULT
@@ -49,7 +49,7 @@ class ChecklistGenerator():
 
     def generate_checklist_using_subsequent_chain(self, generated_prompt: str):
         # Chain to generate a checklist
-        llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+        llm = ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo")
         dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear and detailed checklist using below Prompt,
             
             Prompt: "{final_prompt}"
@@ -97,10 +97,10 @@ class ChecklistGenerator():
         # This is the overall chain where we run these all the chains in sequence.
         overall_chain = SimpleSequentialChain(
             chains=[checklist_creation_chain])
-        result = overall_chain.run(generated_prompt)
+        result = overall_chain.invoke(generated_prompt)
 
         # Parse the output and get JSON
-        json_result = parse_agent_result_and_get_json(result)
+        json_result = parse_agent_result_and_get_json(str(result))
 
         self.store_results(json_result)
 

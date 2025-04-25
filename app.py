@@ -5,6 +5,7 @@ import jwt
 from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 
+from agents.sample_promtps_generator import SamplePromptsGenerator
 import config
 from config import JWT_SECRET
 from controllers.checklist_controller import ChecklistController
@@ -108,6 +109,21 @@ def generate_checklist_using_agent_api():
         return jsonify({'error': {'message': str(error)}}), 500
     finally:
         gc.collect()
+        
+@app.route('/generate-sample-prompts', methods=['POST'])
+def generate_sample_prompts_api():
+    body = request.get_json() or {}
+    role = body.get("jobRole")
+    industry = body.get("industry")
+    if not role or not industry:
+        return jsonify(error="Missing jobRole or industry"), 400
+
+    try:
+        gen = SamplePromptsGenerator(agent_id="sample-prompts")
+        prompts = gen.generate(role, industry)
+        return jsonify({ "prompts": prompts }), 200
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 
 @app.route('/generate-checklist-metadata', methods=['POST'])

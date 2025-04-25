@@ -1,4 +1,5 @@
 import uuid
+import re, json
 from typing import Any, Dict, List
 
 from agents.checklist_generator import ChecklistGenerator
@@ -177,14 +178,23 @@ class ChecklistUsingAgentController():
             checklist_generator_agent_id)
         generated_checklist = checklist_generator.generate_checklist_using_subsequent_chain(
             generated_prompt)
+                
+        raw = generated_checklist.get("output", "")
+        # match ```json ... ```
+        m = re.search(r"```json\s*(\{.*\})\s*```", raw, re.DOTALL)
+        if not m:
+            raise ValueError("Could not find JSON in LLM output.")
+
+        parsed = json.loads(m.group(1))
+        # now `parsed` is a dict like {"title": "...", "tasks":[...]}
 
         # Generate status indicators
         generated_status_indicators = self.generate_status_indicators(
-            generated_checklist)
+            parsed)
 
         # Pre-process checklist to store in DB
         insert_checklist = self.process_generated_checklist(
-            agent_manager_id, generated_checklist, self.project_id)
+            agent_manager_id, parsed, self.project_id)
 
         # Get the checklist id
         checklist_id = ""

@@ -38,3 +38,6 @@ openpyxl
 
 # Docx
 python-docx
+
+langchain-openai
+langchain-google-community
