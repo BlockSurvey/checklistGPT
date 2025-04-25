@@ -1,9 +1,9 @@
 Flask
 flask_cors
 Gunicorn==21.1.0
-langchain==0.1.14
+langchain==0.3.24
 google-api-python-client
-openai==0.28.0
+openai>=1.68.2,<2.0.0
 python-dotenv
 requests
 pyjwt
@@ -38,6 +38,4 @@ openpyxl
 
 # Docx
 python-docx
-
-langchain-openai
-langchain-google-community
+langchain-community>=0.3.0

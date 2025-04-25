@@ -1,6 +1,6 @@
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 
 

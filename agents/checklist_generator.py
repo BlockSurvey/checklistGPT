@@ -6,7 +6,7 @@ import regex
 from flask import g
 from langchain.chains import LLMChain, SimpleSequentialChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 
 from gql.agent import INSERT_AGENT_RESULT
 from services.hasura_service import HasuraService
