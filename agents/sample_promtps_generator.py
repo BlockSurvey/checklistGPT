@@ -1,5 +1,5 @@
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_core.runnables import RunnableSequence
 from langchain.schema import AIMessage

@@ -1,6 +1,6 @@
 from langchain.chains import LLMChain
 from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 
 import concurrent.futures
 

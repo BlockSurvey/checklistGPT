@@ -3,7 +3,7 @@ from typing import List
 from flask import g
 
 from langchain.agents import Tool
-from langchain.prompts import StringPromptTemplate
+from langchain_core.prompts.prompt import StringPromptTemplate
 
 from gql.agent import INSERT_AGENT_RESULT
 from typing import ClassVar

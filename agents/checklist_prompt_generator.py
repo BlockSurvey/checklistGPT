@@ -1,9 +1,11 @@
-from langchain.agents import AgentExecutor, LLMSingleActionAgent, Tool, AgentType
+from langchain.agents import AgentExecutor, LLMSingleActionAgent
+from langchain.tools import Tool
+from langchain.agents import AgentType
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-from langchain_google_community import GoogleSearchAPIWrapper
+from langchain_core.prompts.prompt import PromptTemplate
+from langchain.utilities import GoogleSearchAPIWrapper
 
 from utils.langchain.custom_output_parser import CustomOutputParser
 from utils.langchain.custom_prompt_template import CustomPromptTemplate

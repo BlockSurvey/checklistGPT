@@ -9,7 +9,7 @@ from utils.langchain.document_loaders.image_loader import ImageLoader
 
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 from langchain_core.runnables import RunnableSequence
 from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 from utils.langchain.document_loaders.document_loader_abc import DocumentLoaderInterface
