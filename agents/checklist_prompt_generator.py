@@ -19,9 +19,9 @@ class ChecklistPromptGenerator():
         self.checklist_agent_id = checklist_agent_id
 
     def generate_prompt(self, checklist_name, checklist_project, checklist_organization, checklist_role):
-        # gpt-3.5-turbo / gpt-4
+        # gpt-4o-mini / gpt-4
         llm = ChatOpenAI(
-            temperature=0.5, model="gpt-3.5-turbo")
+            temperature=0.5, model="gpt-4o-mini")
 
         prompt_creator_prompt = PromptTemplate.from_template(
             "You are an expert in generating a very detailed and clear prompt for checklist creation. Ensure the generated checklist follows the exact instructions, quantities, steps, and details given in '{text}'. Do NOT omit, modify, or generalize any steps unless explicitly instructed and include any details, material or content mentioned."

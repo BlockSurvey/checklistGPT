@@ -9,7 +9,7 @@ from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 
 class ChecklistMetadataGenerator():
     # Variables
-    llm = OpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+    llm = OpenAI(temperature=0.5, model_name="gpt-4o-mini")
 
     def bulk_generate_metadata(self, checklist, tasks):
 

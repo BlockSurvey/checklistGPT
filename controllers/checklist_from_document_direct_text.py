@@ -25,7 +25,7 @@ class ChecklistFromDocumentDirectText:
     project_id = None
     document_utils = DocumentUtils()
 
-    llm = ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.5, model="gpt-4o-mini")
 
     def __init__(self, org_id, project_id) -> None:
         self.org_id = org_id
