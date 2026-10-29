@@ -49,7 +49,7 @@ class ChecklistGenerator():
 
     def generate_checklist_using_subsequent_chain(self, generated_prompt: str):
         # Chain to generate a checklist
-        llm = ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo")
+        llm = ChatOpenAI(temperature=0.5, model="gpt-4o-mini")
         dynamic_template = """You are an expert checklist maker/creator. It is your job to create a very clear and detailed checklist using below Prompt,
             
             Prompt: "{final_prompt}"

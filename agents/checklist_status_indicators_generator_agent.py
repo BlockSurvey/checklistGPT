@@ -9,7 +9,7 @@ from utils.langchain.langchain_utils import parse_agent_result_and_get_json
 
 class ChecklistStatusIndicatorsGeneratorAgent():
     # Variables
-    llm = ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.5, model="gpt-4o-mini")
 
     def __init__(self) -> None:
         pass
